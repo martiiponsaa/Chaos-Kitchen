@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class SphereRotate : MonoBehaviour
 {
+    public Vector3 rotationSpeed = new Vector3(0, 50, 0);
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -11,6 +12,6 @@ public class SphereRotate : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        transform.Rotate(rotationSpeed * Time.deltaTime);
     }
 }

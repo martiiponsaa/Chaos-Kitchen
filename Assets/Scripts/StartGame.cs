@@ -10,7 +10,7 @@ public class StartGame : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             AudioSource.PlayClipAtPoint(Sound_start, cameraPosition);
-            SceneManager.LoadScene("SampleScene");
+            //SceneManager.LoadScene("SampleScene");
             
         }
     }
