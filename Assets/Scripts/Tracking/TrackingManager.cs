@@ -290,6 +290,8 @@ public class TrackingManager : MonoBehaviour
         if (kb.sKey.isPressed) move += Vector3.back;
         if (kb.aKey.isPressed) move += Vector3.left;
         if (kb.dKey.isPressed) move += Vector3.right;
+        if (kb.upArrowKey.isPressed) move += Vector3.up;
+        if (kb.downArrowKey.isPressed) move += Vector3.down;
 
         player.transform.Translate(move * Time.deltaTime * trackingDisabledPlayerSpeed);
     }
