@@ -1,4 +1,9 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif
 using UnityEngine.SceneManagement;
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
 using UnityEngine.InputSystem;
@@ -6,6 +11,34 @@ using UnityEngine.InputSystem;
 
 public class SceneShortcut : MonoBehaviour
 {
+    void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        var systems = FindObjectsOfType<EventSystem>();
+        if (systems == null || systems.Length <= 1) return;
+
+        // Keep the first EventSystem and remove any extras to avoid duplicate warnings
+        for (int i = 1; i < systems.Length; i++)
+        {
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                Destroy(systems[i].gameObject);
+            else
+                DestroyImmediate(systems[i].gameObject);
+#else
+            Destroy(systems[i].gameObject);
+#endif
+        }
+    }
     void Update()
     {
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
@@ -31,6 +64,28 @@ public class SceneShortcut : MonoBehaviour
 
     void LoadScene(string sceneName)
     {
+#if UNITY_EDITOR
+        // In the Editor try to find the scene asset by name and open it.
+        // Use different APIs depending on Editor play state so we don't call OpenScene during play mode.
+        string[] guids = AssetDatabase.FindAssets(sceneName + " t:Scene");
+        if (guids.Length > 0)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            if (EditorApplication.isPlaying)
+            {
+                // Load scene during play mode using the Editor helper that accepts a scene asset path
+                EditorSceneManager.LoadSceneInPlayMode(path, new LoadSceneParameters(LoadSceneMode.Single));
+            }
+            else
+            {
+                // Not playing: open the scene in the Editor
+                EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+            }
+            return;
+        }
+#endif
+
+        // At runtime (or if not found as an asset in the Editor) fall back to loading by name via Build Settings
         if (Application.CanStreamedLevelBeLoaded(sceneName))
         {
             SceneManager.LoadScene(sceneName);
