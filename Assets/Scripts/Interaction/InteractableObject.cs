@@ -23,6 +23,7 @@ public class InteractableObject : MonoBehaviour
     private bool isHeld = false;
     private PlayerInteraction currentHolder;
     private Vector3 lastValidPosition;
+    private PlacementSlot occupiedSlot;
 
     private void Start()
     {
@@ -46,6 +47,12 @@ public class InteractableObject : MonoBehaviour
         isHeld = true;
         currentHolder = player;
         lastValidPosition = transform.position;
+        // If this object was occupying a placement slot, free it when picked up
+        if (occupiedSlot != null)
+        {
+            occupiedSlot.isOccupied = false;
+            occupiedSlot = null;
+        }
         
         // Disable physics if using rigidbody
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -100,21 +107,36 @@ public class InteractableObject : MonoBehaviour
     /// </summary>
     private void PlaceOnSurface()
     {
-        Vector3 rayOrigin = transform.position;
-        
-        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, 10f, placementLayerMask))
+        // Slot-based deterministic placement (preferred for designed gameplay)
+        PlacementSlot[] slots = FindObjectsOfType<PlacementSlot>();
+
+        PlacementSlot closest = null;
+        float minDist = Mathf.Infinity;
+
+        foreach (var slot in slots)
         {
-            // Place object on top of the surface
-            float surfaceHeight = hit.point.y;
-            float objectHeight = GetComponent<Collider>().bounds.extents.y;
-            transform.position = new Vector3(transform.position.x, surfaceHeight + objectHeight, transform.position.z);
-            Debug.Log($"{gameObject.name} placed on surface at Y: {surfaceHeight + objectHeight}");
+            if (slot.isOccupied) continue;
+
+            float dist = Vector3.Distance(transform.position, slot.transform.position);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest = slot;
+            }
+        }
+
+        if (closest != null)
+        {
+            transform.position = closest.GetPosition();
+            closest.isOccupied = true;
+            occupiedSlot = closest;
+            Debug.Log($"{gameObject.name} snapped to slot {closest.name} at {closest.GetPosition()}");
         }
         else
         {
-            // If no surface found, place at ground level
-            transform.position = new Vector3(transform.position.x, 0f, transform.position.z);
-            Debug.Log($"{gameObject.name} placed at ground level (no surface detected)");
+            // No free slot found: fall back to previous valid position
+            transform.position = lastValidPosition;
+            Debug.Log($"{gameObject.name} could not find free slot; reverted to last valid position");
         }
     }
 
