@@ -12,13 +12,20 @@ public class InteractableObject : MonoBehaviour
 
     [Header("Placement Settings")]
     [Tooltip("Y position threshold below which the object can be placed")]
-    [SerializeField] private float placementYThreshold = 0.1f;
+    [SerializeField] private float placementYThreshold = 0.2f;
     
     [Tooltip("Use physics raycast to detect surface below for proper placement")]
     [SerializeField] private bool usePhysicsPlacement = false;
     
     [Tooltip("Layer mask for placement detection (surfaces/furniture)")]
     [SerializeField] private LayerMask placementLayerMask;
+    
+    [Header("Pickup Settings")]
+    [Tooltip("Y position threshold at or below which the player can pick this object up")]
+    [SerializeField] private float pickupYThreshold = 0.2f;
+
+    [Tooltip("Vertical tolerance (meters) within which player and object are considered at the same height for pickup")]
+    [SerializeField] private float pickupHeightTolerance = 0.15f;
 
     private bool isHeld = false;
     private PlayerInteraction currentHolder;
@@ -97,6 +104,7 @@ public class InteractableObject : MonoBehaviour
     private void FollowPlayer()
     {
         Vector3 playerPos = currentHolder.GetPlayerPosition();
+        // Follow player's X, Y and Z (with optional Y offset) so the object follows the player's movement
         Vector3 newPosition = new Vector3(playerPos.x, playerPos.y + heldYOffset, playerPos.z);
         transform.position = newPosition;
         lastValidPosition = newPosition;
@@ -146,7 +154,8 @@ public class InteractableObject : MonoBehaviour
     /// </summary>
     public bool CanBePickedUp(Vector3 playerPos)
     {
-        return playerPos.y <= transform.position.y;
+        // Pickup when player's height matches the object's height within a small tolerance
+        return Mathf.Abs(playerPos.y - transform.position.y) <= pickupHeightTolerance;
     }
 
     /// <summary>
