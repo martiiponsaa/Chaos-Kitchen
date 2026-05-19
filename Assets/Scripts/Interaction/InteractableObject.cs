@@ -116,7 +116,7 @@ public class InteractableObject : MonoBehaviour
     private void PlaceOnSurface()
     {
         // Slot-based deterministic placement (preferred for designed gameplay)
-        PlacementSlot[] slots = FindObjectsOfType<PlacementSlot>();
+        PlacementSlot[] slots = FindObjectsByType<PlacementSlot>(FindObjectsSortMode.None);
 
         PlacementSlot closest = null;
         float minDist = Mathf.Infinity;

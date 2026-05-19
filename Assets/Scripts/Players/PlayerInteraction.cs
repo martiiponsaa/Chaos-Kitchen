@@ -44,7 +44,7 @@ public class PlayerInteraction : MonoBehaviour
         nearbyObjects.Clear();
         
         // Find all interactable objects in the scene
-        InteractableObject[] allObjects = FindObjectsOfType<InteractableObject>();
+        InteractableObject[] allObjects = FindObjectsByType<InteractableObject>(FindObjectsSortMode.None);
         
         foreach (InteractableObject obj in allObjects)
         {

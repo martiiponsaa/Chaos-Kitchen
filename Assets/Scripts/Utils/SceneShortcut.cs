@@ -23,7 +23,7 @@ public class SceneShortcut : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        var systems = FindObjectsOfType<EventSystem>();
+        var systems = FindObjectsByType<EventSystem>(FindObjectsSortMode.None);
         if (systems == null || systems.Length <= 1) return;
 
         // Keep the first EventSystem and remove any extras to avoid duplicate warnings
