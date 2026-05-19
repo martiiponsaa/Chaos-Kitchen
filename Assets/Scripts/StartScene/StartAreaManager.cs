@@ -10,8 +10,8 @@ public class StartAreaManager : MonoBehaviour
     public float requiredHoldTime = 3f;
 
     List<StartArea> _areas = new List<StartArea>();
-    float _occupiedTimer = 0f;
     bool _started = false;
+    Coroutine _countdownCoroutine = null;
 
     void Awake()
     {
@@ -67,17 +67,40 @@ public class StartAreaManager : MonoBehaviour
 
         if (allOccupied)
         {
-            _occupiedTimer += Time.deltaTime;
-            if (_occupiedTimer >= requiredHoldTime)
-            {
-                _started = true;
-                Debug.Log($"Start areas occupied for {requiredHoldTime} seconds. Start confirmed.");
-            }
+            if (_countdownCoroutine == null)
+                _countdownCoroutine = StartCoroutine(RunCountdown());
         }
         else
         {
-            if (_occupiedTimer > 0f)
-                _occupiedTimer = 0f;
+            if (_countdownCoroutine != null)
+            {
+                StopCoroutine(_countdownCoroutine);
+                _countdownCoroutine = null;
+            }
         }
+    }
+
+    System.Collections.IEnumerator RunCountdown()
+    {
+        int seconds = Mathf.CeilToInt(requiredHoldTime);
+        for (int s = seconds; s >= 1; s--)
+        {
+            Debug.Log(s);
+            yield return new WaitForSeconds(1f);
+
+            // if any area is no longer occupied, cancel countdown
+            foreach (var a in _areas)
+            {
+                if (!a.IsOccupied)
+                {
+                    _countdownCoroutine = null;
+                    yield break;
+                }
+            }
+        }
+
+        _started = true;
+        _countdownCoroutine = null;
+        Debug.Log($"Start areas occupied for {requiredHoldTime} seconds. Start confirmed.");
     }
 }

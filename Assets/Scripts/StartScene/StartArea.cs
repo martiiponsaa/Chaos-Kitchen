@@ -13,6 +13,12 @@ public class StartArea : MonoBehaviour
     [Tooltip("Renderer to change alpha on for highlight. If empty, will try to get a Renderer on this GameObject.")]
     public Renderer targetRenderer;
 
+    [Header("Material Swap")]
+    [Tooltip("Optional material to apply when the expected player is in the area. If empty, alpha method is used.")]
+    public Material highlightMaterial;
+
+    Material _originalMaterial;
+
     [Tooltip("Alpha to set when highlighted (player is inside)")]
     [Range(0f,1f)]
     public float highlightAlpha = 0.8f;
@@ -37,7 +43,6 @@ public class StartArea : MonoBehaviour
     bool _previousOccupied = false;
 
     Material _instancedMaterial;
-    List<Collider> _lastHits = new List<Collider>();
 
     void Awake()
     {
@@ -46,9 +51,12 @@ public class StartArea : MonoBehaviour
 
         if (targetRenderer != null)
         {
-            // instantiate material so we don't modify shared material
-            _instancedMaterial = targetRenderer.material;
-            SetAlpha(normalAlpha);
+            // cache original material (material creates an instance if needed)
+            _originalMaterial = targetRenderer.material;
+            _instancedMaterial = _originalMaterial;
+            // if no highlightMaterial provided, use alpha on the instanced material
+            if (highlightMaterial == null)
+                SetAlpha(normalAlpha);
         }
 
         // Register with manager (manager will find areas automatically too)
@@ -82,88 +90,42 @@ public class StartArea : MonoBehaviour
         Collider[] hits = Physics.OverlapCapsule(bottom, top, detectionRadius, detectionMask, QueryTriggerInteraction.Collide);
 
         bool found = false;
-        var hitList = new List<Collider>(hits);
-        var descriptions = new System.Text.StringBuilder();
-        descriptions.Append($"[{gameObject.name}] Overlap hits count={hits.Length}: ");
         foreach (var c in hits)
         {
-            descriptions.Append(DescribeCollider(c));
-            descriptions.Append("; ");
-
             if (IsExpectedPlayer(c))
             {
                 found = true;
-                // keep checking others to provide full log
+                break;
             }
-        }
-
-        // Log detailed hit info whenever hits change
-        bool hitsChanged = !AreColliderListsEqual(_lastHits, hitList);
-        if (hitsChanged)
-        {
-            Debug.Log(descriptions.ToString());
-            _lastHits = hitList;
         }
 
         if (found != _previousOccupied)
         {
             _previousOccupied = found;
             IsOccupied = found;
-            SetAlpha(found ? highlightAlpha : normalAlpha);
-            if (StartAreaManager.HasInstance)
-                StartAreaManager.Instance.NotifyAreaChanged(this, found);
-
-            if (found)
+            // If a highlight material is provided, swap materials. Otherwise adjust alpha.
+            if (targetRenderer != null && highlightMaterial != null)
             {
-                // Identify which expected player(s) are present and whether others are present
-                var expectedPresent = new System.Text.StringBuilder();
-                var othersPresent = new System.Text.StringBuilder();
-                foreach (var c in hits)
-                {
-                    var id = c.GetComponent<PlayerIdentifier>();
-                    if (id != null)
-                    {
-                        if (id.PlayerId == expectedPlayerId)
-                            expectedPresent.Append($"PlayerId={id.PlayerId} ");
-                        else
-                            othersPresent.Append($"PlayerId={id.PlayerId} ");
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(expectedPlayerTag) && c.CompareTag(expectedPlayerTag))
-                            expectedPresent.Append($"Tag={expectedPlayerTag} ");
-                        else
-                            othersPresent.Append($"Obj={DescribeCollider(c)} ");
-                    }
-                }
-
-                Debug.Log($"[{gameObject.name}] Detected expected player? {expectedPresent.Length>0}. Expected={expectedPlayerId}. ExpectedPresent=[{expectedPresent}] Others=[{othersPresent}]");
+                if (found)
+                    targetRenderer.material = highlightMaterial;
+                else
+                    targetRenderer.material = _originalMaterial;
             }
             else
             {
-                Debug.Log($"[{gameObject.name}] Area no longer occupied (player left or moved out of detection zone).");
+                SetAlpha(found ? highlightAlpha : normalAlpha);
+            }
+            if (StartAreaManager.HasInstance)
+                StartAreaManager.Instance.NotifyAreaChanged(this, found);
+
+            // Only log when the expected player enters the area (not on exit)
+            if (found)
+            {
+                Debug.Log($"[{gameObject.name}] Expected player {expectedPlayerId} entered area.");
             }
         }
     }
 
-    static bool AreColliderListsEqual(List<Collider> a, List<Collider> b)
-    {
-        if (a == null && b == null) return true;
-        if (a == null || b == null) return false;
-        if (a.Count != b.Count) return false;
-        for (int i = 0; i < a.Count; i++)
-            if (a[i] != b[i]) return false;
-        return true;
-    }
-
-    string DescribeCollider(Collider c)
-    {
-        if (c == null) return "<null>";
-        var id = c.GetComponent<PlayerIdentifier>();
-        if (id != null) return $"GameObject={c.gameObject.name}(PlayerId={id.PlayerId})";
-        if (!string.IsNullOrEmpty(c.gameObject.tag)) return $"GameObject={c.gameObject.name}(Tag={c.gameObject.tag})";
-        return $"GameObject={c.gameObject.name}";
-    }
 
     bool IsExpectedPlayer(Collider other)
     {
