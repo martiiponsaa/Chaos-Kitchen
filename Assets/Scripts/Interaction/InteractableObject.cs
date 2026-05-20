@@ -88,19 +88,21 @@ public class InteractableObject : MonoBehaviour
     /// <summary>
     /// Called when player places this object down
     /// </summary>
-    public void PlaceDown()
+    public bool PlaceDown()
     {
-        if (!isHeld) return;
+        if (!isHeld) return false;
 
         isHeld = false;
         currentHolder = null;
-
         // Only allow placement into a pending slot (determined by ShouldBePlacedDown)
-        if (pendingPlacementSlot != null)
+        var slot = pendingPlacementSlot;
+        // clear pendingPlacementSlot early to avoid reuse during placement
+        pendingPlacementSlot = null;
+        if (slot != null)
         {
-            Vector3 slotPos = pendingPlacementSlot.GetPosition();
+            Vector3 slotPos = slot.GetPosition();
             // If this slot accepts only dishes, handle delivery/consumption logic
-            if (pendingPlacementSlot.acceptOnlyDishes)
+            if (slot.acceptOnlyDishes)
             {
                 // Only Dish objects are acceptable here
                 if (this is Dish dishObj)
@@ -108,79 +110,86 @@ public class InteractableObject : MonoBehaviour
                     if (!dishObj.IsCompleted)
                     {
                         // Can't deliver an incomplete dish
-                        Debug.LogWarning($"Cannot deliver incomplete dish {gameObject.name} to {pendingPlacementSlot.name}");
-                        pendingPlacementSlot = null;
-                        return;
+                        Debug.LogWarning($"Cannot deliver incomplete dish {gameObject.name} to {slot.name}");
+                        // placement failed
+                        return false;
                     }
 
-                    if (pendingPlacementSlot.consumeOnPlace)
+                    if (slot.consumeOnPlace)
                     {
                         // Consume/deliver the dish
-                        Debug.Log($"Dish {gameObject.name} delivered at {pendingPlacementSlot.name}");
+                        Debug.Log($"Dish {gameObject.name} delivered at {slot.name}");
                         Destroy(gameObject);
-                        pendingPlacementSlot = null;
-                        return;
+                        return true;
                     }
                     else
                     {
                         // Snap the dish to the slot but mark occupied
                         transform.position = new Vector3(slotPos.x, pickupYAtPickup, slotPos.z);
-                        pendingPlacementSlot.isOccupied = true;
-                        occupiedSlot = pendingPlacementSlot;
-                        Debug.Log($"Dish {gameObject.name} placed into delivery slot {pendingPlacementSlot.name}");
-                        pendingPlacementSlot = null;
+                        slot.isOccupied = true;
+                        occupiedSlot = slot;
+                        Debug.Log($"Dish {gameObject.name} placed into delivery slot {slot.name}");
+                        return true;
                     }
                 }
                 else
                 {
                     // This slot only accepts dishes
-                    Debug.LogWarning($"Slot {pendingPlacementSlot.name} accepts only dishes");
-                    pendingPlacementSlot = null;
-                    return;
+                    Debug.LogWarning($"Slot {slot.name} accepts only dishes");
+                    return false;
                 }
             }
             else
             {
                 transform.position = new Vector3(slotPos.x, pickupYAtPickup, slotPos.z);
-                pendingPlacementSlot.isOccupied = true;
-                occupiedSlot = pendingPlacementSlot;
-                Debug.Log($"{gameObject.name} placed into slot {pendingPlacementSlot.name} at {occupiedSlot.GetPosition()} (preserved Y={pickupYAtPickup})");
+                slot.isOccupied = true;
+                occupiedSlot = slot;
+                Debug.Log($"{gameObject.name} placed into slot {slot.name} at {occupiedSlot.GetPosition()} (preserved Y={pickupYAtPickup})");
                 // If this slot is linked to a Dish, notify it that an ingredient was placed here
-                if (pendingPlacementSlot.linkedDish != null)
+                if (slot.linkedDish != null)
                 {
-                    bool applied = pendingPlacementSlot.linkedDish.ApplyIngredient(this);
+                    bool applied = slot.linkedDish.ApplyIngredient(this);
                     if (applied)
                     {
                         // Ingredient was consumed by the dish, destroy this object
                         Destroy(gameObject);
                         // early return — object destroyed
-                        pendingPlacementSlot = null;
-                        return;
+                        return true;
                     }
                 }
-                pendingPlacementSlot = null;
+                return true;
             }
         }
         else if (usePhysicsPlacement)
         {
             // Fallback behaviour if physics placement is enabled
             PlaceOnSurface();
+
+            // Re-enable physics if using rigidbody
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+            }
+
+            Debug.Log($"{gameObject.name} placed down at position {transform.position}");
+            return true;
         }
         else
         {
             // If placement isn't allowed (no nearby slot) keep object at last valid position
             transform.position = lastValidPosition;
             Debug.Log($"{gameObject.name} placement cancelled; no nearby slot found");
-        }
 
-        // Re-enable physics if using rigidbody
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.isKinematic = false;
-        }
+            // Re-enable physics if using rigidbody
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+            }
 
-        Debug.Log($"{gameObject.name} placed down at position {transform.position}");
+            return false;
+        }
     }
 
     /// <summary>
@@ -277,6 +286,8 @@ public class InteractableObject : MonoBehaviour
         Vector2 playerXZ = new Vector2(playerPos.x, playerPos.z);
         foreach (var slot in slots)
         {
+            // Skip dish-only slots when this object is not a Dish
+            if (slot.acceptOnlyDishes && !(this is Dish)) continue;
             Vector3 sPos = slot.GetPosition();
             Vector2 slotXZ = new Vector2(sPos.x, sPos.z);
             float dist = Vector2.Distance(playerXZ, slotXZ);

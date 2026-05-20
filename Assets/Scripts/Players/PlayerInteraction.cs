@@ -121,10 +121,17 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (obj == null || !heldObjects.Contains(obj)) return;
 
-        obj.PlaceDown();
-        heldObjects.Remove(obj);
-        
-        Debug.Log($"Player placed down {obj.gameObject.name}. Holding {heldObjects.Count} object(s)");
+        bool placed = obj.PlaceDown();
+        if (placed)
+        {
+            heldObjects.Remove(obj);
+            Debug.Log($"Player placed down {obj.gameObject.name}. Holding {heldObjects.Count} object(s)");
+        }
+        else
+        {
+            // Placement failed (slot rejected); keep holding the object
+            Debug.Log($"Placement cancelled for {obj.gameObject.name}; still holding {heldObjects.Count} object(s)");
+        }
     }
 
     /// <summary>
