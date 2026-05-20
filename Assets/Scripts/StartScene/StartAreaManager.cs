@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 // Timer is provided by TimersMadeEasyLite package in the project (global namespace)
 
 public class StartAreaManager : MonoBehaviour
@@ -16,6 +19,18 @@ public class StartAreaManager : MonoBehaviour
     [Header("Timer")]
     [Tooltip("Optional: UI Timer to start when the start countdown finishes. If empty will try to find one in the scene.")]
     public Timer levelTimer;
+
+    [Header("Fade & Transition")]
+    [Tooltip("AudioMixer with exposed Music volume parameter (in dB)")]
+    public AudioMixer audioMixer;
+    [Tooltip("Name of the exposed volume parameter in the mixer controlling music")] 
+    public string musicParameter = "Music";
+    [Tooltip("UI Image used for fade-to-black. Alpha is expected 0..1.")]
+    public Image fadeImage;
+    [Tooltip("Seconds to fade the image to black")] public float imageFadeDuration = 2f;
+    [Tooltip("Seconds to fade music to mute")] public float musicFadeDuration = 2f;
+    [Tooltip("Minimum dB value to treat as silent (e.g. -80 dB)")]
+    public float muteDb = -80f;
 
     void Awake()
     {
@@ -145,8 +160,95 @@ public class StartAreaManager : MonoBehaviour
 
         if (levelTimer != null)
         {
-            Debug.Log("Start confirmed. Level timer continues running.");
-            // leave the timer running; keep UI visible
+            Debug.Log("Start confirmed. Stopping and hiding level timer, beginning transition.");
+            // Stop and hide the timer UI immediately when countdown completes
+            levelTimer.StopTimer();
+            if (levelTimer.gameObject.activeSelf)
+                levelTimer.gameObject.SetActive(false);
         }
+
+        // Begin fading music and screen, then load next scene when complete
+        StartCoroutine(FadeAndLoadFirstLevel());
+    }
+
+    System.Collections.IEnumerator FadeAndLoadFirstLevel()
+    {
+        bool musicDone = false;
+        bool imageDone = false;
+
+        if (audioMixer != null)
+            StartCoroutine(FadeOutMusicCoroutine(musicFadeDuration, () => musicDone = true));
+        else
+            musicDone = true; // nothing to fade
+
+        if (fadeImage != null)
+            StartCoroutine(FadeImageCoroutine(imageFadeDuration, () => imageDone = true));
+        else
+            imageDone = true;
+
+        // wait until both are finished
+        yield return new WaitUntil(() => musicDone && imageDone);
+
+        // safety small delay to ensure audio stops
+        yield return null;
+
+        Debug.Log("Fade complete — loading FirstLevel scene.");
+        SceneManager.LoadScene("FirstLevel");
+    }
+
+    System.Collections.IEnumerator FadeOutMusicCoroutine(float duration, System.Action onComplete)
+    {
+        if (audioMixer == null || string.IsNullOrEmpty(musicParameter))
+        {
+            onComplete?.Invoke();
+            yield break;
+        }
+
+        // read current dB value; if not present assume 0 dB
+        if (!audioMixer.GetFloat(musicParameter, out float startDb))
+            startDb = 0f;
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float f = Mathf.Clamp01(t / duration);
+            float db = Mathf.Lerp(startDb, muteDb, f);
+            audioMixer.SetFloat(musicParameter, db);
+            yield return null;
+        }
+
+        audioMixer.SetFloat(musicParameter, muteDb);
+        onComplete?.Invoke();
+    }
+
+    System.Collections.IEnumerator FadeImageCoroutine(float duration, System.Action onComplete)
+    {
+        if (fadeImage == null)
+        {
+            onComplete?.Invoke();
+            yield break;
+        }
+
+        // ensure image is enabled and starts with alpha 0
+        var c = fadeImage.color;
+        c.a = 0f;
+        fadeImage.color = c;
+        if (!fadeImage.gameObject.activeSelf)
+            fadeImage.gameObject.SetActive(true);
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float f = Mathf.Clamp01(t / duration);
+            c.a = Mathf.Lerp(0f, 1f, f);
+            fadeImage.color = c;
+            yield return null;
+        }
+
+        c.a = 1f;
+        fadeImage.color = c;
+        onComplete?.Invoke();
     }
 }
