@@ -1631,9 +1631,10 @@ MonoBehaviour:
   placementLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  slotSnapDistance: 1
+  slotSnapDistance: 5
   pickupYThreshold: 0.2
   pickupHeightTolerance: 0.15
+  ingredientType: 0
 --- !u!136 &265716362
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1719,7 +1720,7 @@ Transform:
   m_GameObject: {fileID: 265716360}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.6, y: 0.2, z: -11.5}
+  m_LocalPosition: {x: 23.6, y: 0, z: -11.5}
   m_LocalScale: {x: 5, y: 1.44345, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1847,6 +1848,61 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: {x: 0, y: 50, z: 0}
+--- !u!1 &335211976
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 335211977}
+  - component: {fileID: 335211978}
+  m_Layer: 0
+  m_Name: Dish_Pizza
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &335211977
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335211976}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 471673682}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &335211978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335211976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78c0030157aa96149b2af8854aad5761, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  heldYOffset: 1
+  placementYThreshold: 0.2
+  usePhysicsPlacement: 0
+  placementLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  slotSnapDistance: 5
+  pickupYThreshold: 0.2
+  pickupHeightTolerance: 0.15
+  ingredientType: 0
+  recipe: {fileID: 11400000, guid: e53c6e5de06c34943aed620b83eca0a8, type: 2}
 --- !u!1001 &355473202
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2003,6 +2059,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5727680658984773940, guid: 366a8b5346d24854187aa81b57d4f19b, type: 3}
   m_PrefabInstance: {fileID: 360889650}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &366032595
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 366032596}
+  m_Layer: 0
+  m_Name: Center
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &366032596
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 366032595}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 802957370}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &373190594
 GameObject:
   m_ObjectHideFlags: 0
@@ -2517,7 +2604,7 @@ GameObject:
   - component: {fileID: 471673681}
   - component: {fileID: 471673680}
   m_Layer: 0
-  m_Name: Slot_1
+  m_Name: Slot_pizza_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2537,6 +2624,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isOccupied: 0
   center: {fileID: 497427748}
+  acceptOnlyDishes: 0
+  consumeOnPlace: 0
+  linkedDish: {fileID: 335211978}
 --- !u!65 &471673681
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2567,11 +2657,12 @@ Transform:
   m_GameObject: {fileID: 471673679}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 19.54072, y: 3.47808, z: 5.699997}
+  m_LocalPosition: {x: -14.24072, y: 0, z: -44.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 497427748}
+  - {fileID: 335211977}
   m_Father: {fileID: 1335117239}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &472907964
@@ -4032,6 +4123,78 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 791114920}
   m_CullTransparentMesh: 1
+--- !u!1 &802957369
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 802957370}
+  - component: {fileID: 802957372}
+  - component: {fileID: 802957371}
+  m_Layer: 0
+  m_Name: Deliver_pizza_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &802957370
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802957369}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -41.1, y: 0, z: -44.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 366032596}
+  m_Father: {fileID: 1335117239}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &802957371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802957369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c059a96a9f95ba043824e47549cf9ed3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isOccupied: 0
+  center: {fileID: 366032596}
+  acceptOnlyDishes: 1
+  consumeOnPlace: 1
+  linkedDish: {fileID: 0}
+--- !u!65 &802957372
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802957369}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 17, y: 1, z: 12}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &824954171
 GameObject:
   m_ObjectHideFlags: 0
@@ -5666,7 +5829,7 @@ GameObject:
   - component: {fileID: 1277524181}
   - component: {fileID: 1277524180}
   m_Layer: 0
-  m_Name: Cylinder (2)
+  m_Name: Ingredient_Cheese
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5690,9 +5853,10 @@ MonoBehaviour:
   placementLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  slotSnapDistance: 1
+  slotSnapDistance: 5
   pickupYThreshold: 0.2
   pickupHeightTolerance: 0.15
+  ingredientType: 3
 --- !u!136 &1277524181
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -5778,7 +5942,7 @@ Transform:
   m_GameObject: {fileID: 1277524179}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.6, y: 0.2, z: -24.5}
+  m_LocalPosition: {x: -22.4, y: 0, z: -24.5}
   m_LocalScale: {x: 5, y: 1.44345, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6301,11 +6465,12 @@ Transform:
   m_GameObject: {fileID: 1335117238}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.04072, y: -3.47808, z: -50.1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 471673682}
+  - {fileID: 802957370}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1339729023
@@ -7423,7 +7588,7 @@ GameObject:
   - component: {fileID: 1469565619}
   - component: {fileID: 1469565618}
   m_Layer: 0
-  m_Name: Cylinder
+  m_Name: Ingredient_Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7447,9 +7612,10 @@ MonoBehaviour:
   placementLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  slotSnapDistance: 1
+  slotSnapDistance: 5
   pickupYThreshold: 0.2
   pickupHeightTolerance: 0.15
+  ingredientType: 1
 --- !u!136 &1469565619
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -7535,7 +7701,7 @@ Transform:
   m_GameObject: {fileID: 1469565617}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.92, y: 0.2, z: -44.99}
+  m_LocalPosition: {x: -35.7, y: 0, z: -44.99}
   m_LocalScale: {x: 5, y: 1.44345, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7874,7 +8040,7 @@ GameObject:
   - component: {fileID: 1516479256}
   - component: {fileID: 1516479255}
   m_Layer: 0
-  m_Name: Cylinder (1)
+  m_Name: Ingredient_Tomato
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7898,9 +8064,10 @@ MonoBehaviour:
   placementLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  slotSnapDistance: 1
+  slotSnapDistance: 5
   pickupYThreshold: 0.2
   pickupHeightTolerance: 0.15
+  ingredientType: 2
 --- !u!136 &1516479256
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -7986,7 +8153,7 @@ Transform:
   m_GameObject: {fileID: 1516479254}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.92, y: 0.2, z: -24.5}
+  m_LocalPosition: {x: -13.92, y: 0, z: -34.4}
   m_LocalScale: {x: 5, y: 1.44345, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []

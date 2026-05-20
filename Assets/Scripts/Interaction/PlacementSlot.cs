@@ -9,6 +9,12 @@ public class PlacementSlot : MonoBehaviour
 
     // Optional explicit center transform (if not set, uses this.transform)
     public Transform center;
+    // If true, this slot accepts only completed Dish objects.
+    public bool acceptOnlyDishes = false;
+    // If true and a dish is placed here, the dish will be consumed (delivered) instead of being snapped.
+    public bool consumeOnPlace = false;
+    // Optional linked Dish that occupies this slot (assign in inspector)
+    public Dish linkedDish;
 
     // Static registry for fast lookups
     public static readonly List<PlacementSlot> all = new List<PlacementSlot>();

@@ -31,6 +31,10 @@ public class InteractableObject : MonoBehaviour
     [Tooltip("Vertical tolerance (meters) within which player and object are considered at the same height for pickup")]
     [SerializeField] private float pickupHeightTolerance = 0.15f;
 
+    [Header("Ingredient")]
+    [Tooltip("Type of ingredient this object represents (None for non-ingredients)")]
+    [SerializeField] private IngredientType ingredientType = IngredientType.None;
+
     private bool isHeld = false;
     private PlayerInteraction currentHolder;
     private Vector3 lastValidPosition;
@@ -95,11 +99,67 @@ public class InteractableObject : MonoBehaviour
         if (pendingPlacementSlot != null)
         {
             Vector3 slotPos = pendingPlacementSlot.GetPosition();
-            transform.position = new Vector3(slotPos.x, pickupYAtPickup, slotPos.z);
-            pendingPlacementSlot.isOccupied = true;
-            occupiedSlot = pendingPlacementSlot;
-            Debug.Log($"{gameObject.name} placed into slot {pendingPlacementSlot.name} at {occupiedSlot.GetPosition()} (preserved Y={pickupYAtPickup})");
-            pendingPlacementSlot = null;
+            // If this slot accepts only dishes, handle delivery/consumption logic
+            if (pendingPlacementSlot.acceptOnlyDishes)
+            {
+                // Only Dish objects are acceptable here
+                if (this is Dish dishObj)
+                {
+                    if (!dishObj.IsCompleted)
+                    {
+                        // Can't deliver an incomplete dish
+                        Debug.LogWarning($"Cannot deliver incomplete dish {gameObject.name} to {pendingPlacementSlot.name}");
+                        pendingPlacementSlot = null;
+                        return;
+                    }
+
+                    if (pendingPlacementSlot.consumeOnPlace)
+                    {
+                        // Consume/deliver the dish
+                        Debug.Log($"Dish {gameObject.name} delivered at {pendingPlacementSlot.name}");
+                        Destroy(gameObject);
+                        pendingPlacementSlot = null;
+                        return;
+                    }
+                    else
+                    {
+                        // Snap the dish to the slot but mark occupied
+                        transform.position = new Vector3(slotPos.x, pickupYAtPickup, slotPos.z);
+                        pendingPlacementSlot.isOccupied = true;
+                        occupiedSlot = pendingPlacementSlot;
+                        Debug.Log($"Dish {gameObject.name} placed into delivery slot {pendingPlacementSlot.name}");
+                        pendingPlacementSlot = null;
+                    }
+                }
+                else
+                {
+                    // This slot only accepts dishes
+                    Debug.LogWarning($"Slot {pendingPlacementSlot.name} accepts only dishes");
+                    pendingPlacementSlot = null;
+                    return;
+                }
+            }
+            else
+            {
+                transform.position = new Vector3(slotPos.x, pickupYAtPickup, slotPos.z);
+                pendingPlacementSlot.isOccupied = true;
+                occupiedSlot = pendingPlacementSlot;
+                Debug.Log($"{gameObject.name} placed into slot {pendingPlacementSlot.name} at {occupiedSlot.GetPosition()} (preserved Y={pickupYAtPickup})");
+                // If this slot is linked to a Dish, notify it that an ingredient was placed here
+                if (pendingPlacementSlot.linkedDish != null)
+                {
+                    bool applied = pendingPlacementSlot.linkedDish.ApplyIngredient(this);
+                    if (applied)
+                    {
+                        // Ingredient was consumed by the dish, destroy this object
+                        Destroy(gameObject);
+                        // early return — object destroyed
+                        pendingPlacementSlot = null;
+                        return;
+                    }
+                }
+                pendingPlacementSlot = null;
+            }
         }
         else if (usePhysicsPlacement)
         {
@@ -179,10 +239,25 @@ public class InteractableObject : MonoBehaviour
     /// Check if this object can be picked up based on player's Y position
     /// Player must be at or below the object's Y position to pick it up
     /// </summary>
-    public bool CanBePickedUp(Vector3 playerPos)
+    public virtual bool CanBePickedUp(Vector3 playerPos)
     {
         // Pickup when player's height matches the object's height within a small tolerance
-        return Mathf.Abs(playerPos.y - transform.position.y) <= pickupHeightTolerance;
+        bool heightOk = Mathf.Abs(playerPos.y - transform.position.y) <= pickupHeightTolerance;
+        if (!heightOk) return false;
+
+        // If this object is an ingredient, only allow pickup if there is at least one Dish
+        // that can accept this ingredient now.
+        if (ingredientType != IngredientType.None)
+        {
+            Dish[] dishes = FindObjectsByType<Dish>(FindObjectsSortMode.None);
+            foreach (var d in dishes)
+            {
+                if (d != null && d.CanAccept(ingredientType)) return true;
+            }
+            return false;
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -202,20 +277,32 @@ public class InteractableObject : MonoBehaviour
         Vector2 playerXZ = new Vector2(playerPos.x, playerPos.z);
         foreach (var slot in slots)
         {
-            if (slot.isOccupied) continue;
             Vector3 sPos = slot.GetPosition();
             Vector2 slotXZ = new Vector2(sPos.x, sPos.z);
             float dist = Vector2.Distance(playerXZ, slotXZ);
-            if (dist < minDist)
+            if (dist >= minDist) continue; // only consider closer slots
+
+            // Determine if this slot can accept placement:
+            // - empty slots (not occupied) are acceptable
+            // - or slots that are occupied by a Dish which can accept this ingredient now
+            bool slotAccepts = false;
+            if (!slot.isOccupied) slotAccepts = true;
+            else if (slot.linkedDish != null)
             {
-                minDist = dist;
-                closest = slot;
+                // allow placing onto an occupied slot if the linked dish can accept this ingredient
+                slotAccepts = slot.linkedDish.CanAccept(ingredientType);
             }
+
+            if (!slotAccepts) continue;
+
+            // accept this slot as the current closest
+            minDist = dist;
+            closest = slot;
         }
 
         if (closest != null && minDist <= slotSnapDistance)
         {
-            // A nearby free slot exists — allow placement and remember which slot to use
+            // A nearby suitable slot exists — allow placement and remember which slot to use
             pendingPlacementSlot = closest;
             return true;
         }
