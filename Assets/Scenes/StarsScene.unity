@@ -9298,7 +9298,7 @@ MonoBehaviour:
   fadeImage: {fileID: 791114922}
   imageFadeDuration: 2
   musicFadeDuration: 2
-  muteDb: -80
+  muteDb: -20
 --- !u!1001 &1830374548
 PrefabInstance:
   m_ObjectHideFlags: 0
