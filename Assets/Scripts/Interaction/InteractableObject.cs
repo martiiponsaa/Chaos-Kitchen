@@ -19,7 +19,11 @@ public class InteractableObject : MonoBehaviour
     
     [Tooltip("Layer mask for placement detection (surfaces/furniture)")]
     [SerializeField] private LayerMask placementLayerMask;
-    
+
+    [Header("Slot Placement")]
+    [Tooltip("Maximum horizontal distance (meters) from player to a free slot to allow placement")]
+    [SerializeField] private float slotSnapDistance = 1.0f;
+
     [Header("Pickup Settings")]
     [Tooltip("Y position threshold at or below which the player can pick this object up")]
     [SerializeField] private float pickupYThreshold = 0.2f;
@@ -30,7 +34,9 @@ public class InteractableObject : MonoBehaviour
     private bool isHeld = false;
     private PlayerInteraction currentHolder;
     private Vector3 lastValidPosition;
+    private float pickupYAtPickup;
     private PlacementSlot occupiedSlot;
+    private PlacementSlot pendingPlacementSlot;
 
     private void Start()
     {
@@ -51,9 +57,13 @@ public class InteractableObject : MonoBehaviour
     /// </summary>
     public void PickUp(PlayerInteraction player)
     {
+        if (isHeld) return;
+
         isHeld = true;
         currentHolder = player;
-        lastValidPosition = transform.position;
+        // Record the Y at pickup so we can preserve it on drop
+        pickupYAtPickup = transform.position.y;
+
         // If this object was occupying a placement slot, free it when picked up
         if (occupiedSlot != null)
         {
@@ -81,10 +91,26 @@ public class InteractableObject : MonoBehaviour
         isHeld = false;
         currentHolder = null;
 
-        // Try to place on surface using physics
-        if (usePhysicsPlacement)
+        // Only allow placement into a pending slot (determined by ShouldBePlacedDown)
+        if (pendingPlacementSlot != null)
         {
+            Vector3 slotPos = pendingPlacementSlot.GetPosition();
+            transform.position = new Vector3(slotPos.x, pickupYAtPickup, slotPos.z);
+            pendingPlacementSlot.isOccupied = true;
+            occupiedSlot = pendingPlacementSlot;
+            Debug.Log($"{gameObject.name} placed into slot {pendingPlacementSlot.name} at {occupiedSlot.GetPosition()} (preserved Y={pickupYAtPickup})");
+            pendingPlacementSlot = null;
+        }
+        else if (usePhysicsPlacement)
+        {
+            // Fallback behaviour if physics placement is enabled
             PlaceOnSurface();
+        }
+        else
+        {
+            // If placement isn't allowed (no nearby slot) keep object at last valid position
+            transform.position = lastValidPosition;
+            Debug.Log($"{gameObject.name} placement cancelled; no nearby slot found");
         }
 
         // Re-enable physics if using rigidbody
@@ -107,7 +133,6 @@ public class InteractableObject : MonoBehaviour
         // Follow player's X, Y and Z (with optional Y offset) so the object follows the player's movement
         Vector3 newPosition = new Vector3(playerPos.x, playerPos.y + heldYOffset, playerPos.z);
         transform.position = newPosition;
-        lastValidPosition = newPosition;
     }
 
     /// <summary>
@@ -135,10 +160,12 @@ public class InteractableObject : MonoBehaviour
 
         if (closest != null)
         {
-            transform.position = closest.GetPosition();
+            Vector3 slotPos = closest.GetPosition();
+            // Snap to slot center but preserve the original pickup height so dropping keeps same Y
+            transform.position = new Vector3(slotPos.x, pickupYAtPickup, slotPos.z);
             closest.isOccupied = true;
             occupiedSlot = closest;
-            Debug.Log($"{gameObject.name} snapped to slot {closest.name} at {closest.GetPosition()}");
+            Debug.Log($"{gameObject.name} snapped to slot {closest.name} at {closest.GetPosition()} (preserved Y={pickupYAtPickup})");
         }
         else
         {
@@ -160,10 +187,42 @@ public class InteractableObject : MonoBehaviour
 
     /// <summary>
     /// Check if object should be placed down based on player's Y position
+    /// Only allows placement when there is a nearby free PlacementSlot
     /// </summary>
     public bool ShouldBePlacedDown(Vector3 playerPos)
     {
-        return playerPos.y <= placementYThreshold && isHeld;
+        if (!isHeld) return false;
+        if (playerPos.y > placementYThreshold) return false;
+
+        // Find closest free placement slot to the player (XZ plane)
+        PlacementSlot[] slots = FindObjectsByType<PlacementSlot>(FindObjectsSortMode.None);
+        PlacementSlot closest = null;
+        float minDist = Mathf.Infinity;
+
+        Vector2 playerXZ = new Vector2(playerPos.x, playerPos.z);
+        foreach (var slot in slots)
+        {
+            if (slot.isOccupied) continue;
+            Vector3 sPos = slot.GetPosition();
+            Vector2 slotXZ = new Vector2(sPos.x, sPos.z);
+            float dist = Vector2.Distance(playerXZ, slotXZ);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest = slot;
+            }
+        }
+
+        if (closest != null && minDist <= slotSnapDistance)
+        {
+            // A nearby free slot exists — allow placement and remember which slot to use
+            pendingPlacementSlot = closest;
+            return true;
+        }
+
+        // No suitable slot nearby — placement not allowed
+        pendingPlacementSlot = null;
+        return false;
     }
 
     public bool IsHeld()

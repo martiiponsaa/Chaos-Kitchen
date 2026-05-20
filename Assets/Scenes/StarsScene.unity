@@ -1631,6 +1631,7 @@ MonoBehaviour:
   placementLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  slotSnapDistance: 1
   pickupYThreshold: 0.2
   pickupHeightTolerance: 0.15
 --- !u!136 &265716362
@@ -1718,7 +1719,7 @@ Transform:
   m_GameObject: {fileID: 265716360}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.6, y: 0.5, z: -11.5}
+  m_LocalPosition: {x: 23.6, y: 0.2, z: -11.5}
   m_LocalScale: {x: 5, y: 1.44345, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1738,7 +1739,7 @@ GameObject:
   - component: {fileID: 313743070}
   - component: {fileID: 313743074}
   m_Layer: 0
-  m_Name: Red Sphere
+  m_Name: Orange Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2012,7 +2013,7 @@ GameObject:
   m_Component:
   - component: {fileID: 373190595}
   m_Layer: 0
-  m_Name: Player2Area - Green
+  m_Name: Player2Area - Blue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2396,7 +2397,7 @@ GameObject:
   - component: {fileID: 445159003}
   - component: {fileID: 445159008}
   m_Layer: 0
-  m_Name: Green Sphere
+  m_Name: Blue Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2504,6 +2505,75 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: {x: 0, y: 50, z: 0}
+--- !u!1 &471673679
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 471673682}
+  - component: {fileID: 471673681}
+  - component: {fileID: 471673680}
+  m_Layer: 0
+  m_Name: Slot_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &471673680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471673679}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c059a96a9f95ba043824e47549cf9ed3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isOccupied: 0
+  center: {fileID: 497427748}
+--- !u!65 &471673681
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471673679}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 17, y: 1, z: 12}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &471673682
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471673679}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 19.54072, y: 3.47808, z: 5.699997}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 497427748}
+  m_Father: {fileID: 1335117239}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &472907964
 GameObject:
   m_ObjectHideFlags: 0
@@ -2613,6 +2683,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 472907964}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &497427747
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 497427748}
+  m_Layer: 0
+  m_Name: Center
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &497427748
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497427747}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 471673682}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &501768674
 GameObject:
   m_ObjectHideFlags: 0
@@ -5589,6 +5690,7 @@ MonoBehaviour:
   placementLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  slotSnapDistance: 1
   pickupYThreshold: 0.2
   pickupHeightTolerance: 0.15
 --- !u!136 &1277524181
@@ -5676,7 +5778,7 @@ Transform:
   m_GameObject: {fileID: 1277524179}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 23.6, y: 0.5, z: -24.5}
+  m_LocalPosition: {x: 23.6, y: 0.2, z: -24.5}
   m_LocalScale: {x: 5, y: 1.44345, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6174,6 +6276,38 @@ MonoBehaviour:
   detectionMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!1 &1335117238
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1335117239}
+  m_Layer: 0
+  m_Name: Slots
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1335117239
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335117238}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10.04072, y: -3.47808, z: -50.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 471673682}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1339729023
 GameObject:
   m_ObjectHideFlags: 0
@@ -7313,6 +7447,7 @@ MonoBehaviour:
   placementLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  slotSnapDistance: 1
   pickupYThreshold: 0.2
   pickupHeightTolerance: 0.15
 --- !u!136 &1469565619
@@ -7400,7 +7535,7 @@ Transform:
   m_GameObject: {fileID: 1469565617}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.92, y: 0.5, z: -44.99}
+  m_LocalPosition: {x: -13.92, y: 0.2, z: -44.99}
   m_LocalScale: {x: 5, y: 1.44345, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7763,6 +7898,7 @@ MonoBehaviour:
   placementLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  slotSnapDistance: 1
   pickupYThreshold: 0.2
   pickupHeightTolerance: 0.15
 --- !u!136 &1516479256
@@ -7850,7 +7986,7 @@ Transform:
   m_GameObject: {fileID: 1516479254}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.92, y: 0.5, z: -24.5}
+  m_LocalPosition: {x: -13.92, y: 0.2, z: -24.5}
   m_LocalScale: {x: 5, y: 1.44345, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8512,7 +8648,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1623730855}
   m_Layer: 0
-  m_Name: Red Sphere
+  m_Name: Orange Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10754,7 +10890,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1987606447}
   m_Layer: 0
-  m_Name: Player1Area - Red
+  m_Name: Player1Area - Orange
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11131,7 +11267,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2078805009}
   m_Layer: 0
-  m_Name: Green Sphere
+  m_Name: Blue Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11499,3 +11635,4 @@ SceneRoots:
   - {fileID: 1162232456}
   - {fileID: 1972868514}
   - {fileID: 254627856}
+  - {fileID: 1335117239}
