@@ -81,7 +81,7 @@ public class InteractableObject : MonoBehaviour
         // Stop highlight feedback and notify guidance system
         Highligh highlight = GetComponent<Highligh>();
         if (highlight != null) highlight.StopHighlight();
-        FindObjectOfType<GuidanceManager>()?.OnIngredientPickedUp(gameObject);
+        FindObjectOfType<GuidanceManager>()?.OnIngredientPickedUp(gameObject, player);
 
         // If this object was occupying a placement slot, free it when picked up
         if (occupiedSlot != null)
@@ -106,6 +106,8 @@ public class InteractableObject : MonoBehaviour
     public bool PlaceDown()
     {
         if (!isHeld) return false;
+        // capture the player who is placing before we clear the holder
+        var placingPlayer = currentHolder;
 
         isHeld = false;
         currentHolder = null;
@@ -134,7 +136,7 @@ public class InteractableObject : MonoBehaviour
                     {
                         // Consume/deliver the dish
                         Debug.Log($"Dish {gameObject.name} delivered at {slot.name}");
-                        FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject);
+                        FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject, placingPlayer);
                         Destroy(gameObject);
                         return true;
                     }
@@ -145,7 +147,7 @@ public class InteractableObject : MonoBehaviour
                         slot.isOccupied = true;
                         occupiedSlot = slot;
                         Debug.Log($"Dish {gameObject.name} placed into delivery slot {slot.name}");
-                        FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject);
+                        FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject, placingPlayer);
                         return true;
                     }
                 }
@@ -173,13 +175,12 @@ public class InteractableObject : MonoBehaviour
                     if (applied)
                     {
                         // Ingredient was consumed by the dish, destroy this object
-                        FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject);
+                        FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject, placingPlayer);
                         Destroy(gameObject);
                         return true;
                     }
                 }
-
-                FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject);
+                FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject, placingPlayer);
                 return true;
             }
         }
@@ -196,7 +197,7 @@ public class InteractableObject : MonoBehaviour
             }
 
             Debug.Log($"{gameObject.name} placed down at position {transform.position}");
-            FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject);
+            FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject, placingPlayer);
             return true;
         }
         else

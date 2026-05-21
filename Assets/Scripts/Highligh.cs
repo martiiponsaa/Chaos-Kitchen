@@ -78,9 +78,10 @@ public class Highligh : MonoBehaviour
         }
     }
 
-    public void StartHighlight()
+    public void StartHighlight(Color? overrideColor = null)
     {
         if (rend == null) return;
+        if (overrideColor.HasValue) pulseColor = overrideColor.Value;
         isBlinking = true;
         timer = 0f;
         showingHighlight = true;
