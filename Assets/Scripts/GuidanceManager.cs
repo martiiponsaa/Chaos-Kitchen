@@ -1,34 +1,44 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class GuidanceManager : MonoBehaviour
 {
     [System.Serializable]
     public class RecipeStep
     {
-        public GameObject ingredient;   // cilindre a agafar
-        public GameObject slot;         // zona on deixar-lo
+        public GameObject ingredient;
+        public GameObject slot;
     }
 
     [Header("Passos de la recepta en ordre")]
-    public RecipeStep[] steps; 
+    public RecipeStep[] steps;
 
     private int currentStep = 0;
     private bool waitingForDrop = false;
 
     void Start()
     {
-        if (steps.Length > 0)
+        StartCoroutine(InitWithDelay());
+    }
+
+    private System.Collections.IEnumerator InitWithDelay()
+    {
+        yield return null;
+        if (steps.Length > 0 && steps[0].ingredient != null)
+        {
+            Debug.Log($"GuidanceManager: ilÂ·luminant {steps[0].ingredient.name}");
             SetHighlight(steps[0].ingredient, true);
+        }
+        else
+        {
+            Debug.LogError("GuidanceManager: no hi ha steps o ingredient Ã©s null!");
+        }
     }
 
     public void OnIngredientPickedUp(GameObject pickedObject)
     {
         if (currentStep >= steps.Length) return;
-
-        // Comprova que és l'ingredient correcte
         if (pickedObject != steps[currentStep].ingredient) return;
 
-        // Apaga ingredient, il·lumina slot
         SetHighlight(steps[currentStep].ingredient, false);
         SetHighlight(steps[currentStep].slot, true);
         waitingForDrop = true;
@@ -39,12 +49,10 @@ public class GuidanceManager : MonoBehaviour
         if (!waitingForDrop) return;
         if (placedObject != steps[currentStep].ingredient) return;
 
-        // Apaga slot
         SetHighlight(steps[currentStep].slot, false);
         currentStep++;
         waitingForDrop = false;
 
-        // Il·lumina el següent ingredient
         if (currentStep < steps.Length)
             SetHighlight(steps[currentStep].ingredient, true);
         else
@@ -55,6 +63,7 @@ public class GuidanceManager : MonoBehaviour
     {
         if (obj == null) return;
         Highligh h = obj.GetComponent<Highligh>();
+        Debug.Log($"SetHighlight: {obj.name} â†’ {on}, Highligh trobat: {h != null}");
         if (h != null)
         {
             if (on) h.StartHighlight();

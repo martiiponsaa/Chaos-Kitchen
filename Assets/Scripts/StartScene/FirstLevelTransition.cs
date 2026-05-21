@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+//using UnityEngine.SceneManagement;
 
 public class FirstLevelTransition : MonoBehaviour
 {
@@ -57,6 +58,8 @@ public class FirstLevelTransition : MonoBehaviour
             imageDone = true;
 
         yield return new WaitUntil(() => musicDone && imageDone);
+
+        //SceneManager.LoadScene("FirstLevel");
     }
 
     IEnumerator FadeMusicIn(float duration, Action onComplete)

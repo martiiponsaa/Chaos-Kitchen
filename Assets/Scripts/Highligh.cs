@@ -6,7 +6,7 @@ public class Highligh : MonoBehaviour
     public Material defaultMaterial;
 
     [Tooltip("Velocitat del parpelleig")]
-    public float blinkSpeed = 0.5f;
+    public float blinkSpeed = 0.8f;
 
     private Renderer rend;
     private bool isBlinking = false;
@@ -16,6 +16,7 @@ public class Highligh : MonoBehaviour
     void Start()
     {
         rend = GetComponent<Renderer>();
+        if (rend == null) return;
         isBlinking = false;
         showingHighlight = false;
         rend.material = defaultMaterial;
@@ -23,6 +24,7 @@ public class Highligh : MonoBehaviour
 
     void Update()
     {
+        if (rend == null) return;
         if (!isBlinking) return;
 
         timer += Time.deltaTime * blinkSpeed;
@@ -36,6 +38,7 @@ public class Highligh : MonoBehaviour
 
     public void StartHighlight()
     {
+        if (rend == null) return;
         isBlinking = true;
         timer = 0f;
         showingHighlight = true;
@@ -44,10 +47,10 @@ public class Highligh : MonoBehaviour
 
     public void StopHighlight()
     {
+        if (rend == null) return;
         isBlinking = false;
         timer = 0f;
         showingHighlight = false;
         rend.material = defaultMaterial;
     }
 }
-

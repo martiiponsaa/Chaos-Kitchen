@@ -13,10 +13,10 @@ public class InteractableObject : MonoBehaviour
     [Header("Placement Settings")]
     [Tooltip("Y position threshold below which the object can be placed")]
     [SerializeField] private float placementYThreshold = 0.2f;
-    
+
     [Tooltip("Use physics raycast to detect surface below for proper placement")]
     [SerializeField] private bool usePhysicsPlacement = false;
-    
+
     [Tooltip("Layer mask for placement detection (surfaces/furniture)")]
     [SerializeField] private LayerMask placementLayerMask;
 
@@ -65,8 +65,14 @@ public class InteractableObject : MonoBehaviour
 
         isHeld = true;
         currentHolder = player;
+        lastValidPosition = transform.position;
         // Record the Y at pickup so we can preserve it on drop
         pickupYAtPickup = transform.position.y;
+
+        // Stop highlight feedback and notify guidance system
+        Highligh highlight = GetComponent<Highligh>();
+        if (highlight != null) highlight.StopHighlight();
+        FindObjectOfType<GuidanceManager>()?.OnIngredientPickedUp(gameObject);
 
         // If this object was occupying a placement slot, free it when picked up
         if (occupiedSlot != null)
@@ -74,7 +80,7 @@ public class InteractableObject : MonoBehaviour
             occupiedSlot.isOccupied = false;
             occupiedSlot = null;
         }
-        
+
         // Disable physics if using rigidbody
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
@@ -96,8 +102,9 @@ public class InteractableObject : MonoBehaviour
         currentHolder = null;
         // Only allow placement into a pending slot (determined by ShouldBePlacedDown)
         var slot = pendingPlacementSlot;
-        // clear pendingPlacementSlot early to avoid reuse during placement
+        // Clear pendingPlacementSlot early to avoid reuse during placement
         pendingPlacementSlot = null;
+
         if (slot != null)
         {
             Vector3 slotPos = slot.GetPosition();
@@ -111,7 +118,6 @@ public class InteractableObject : MonoBehaviour
                     {
                         // Can't deliver an incomplete dish
                         Debug.LogWarning($"Cannot deliver incomplete dish {gameObject.name} to {slot.name}");
-                        // placement failed
                         return false;
                     }
 
@@ -119,6 +125,7 @@ public class InteractableObject : MonoBehaviour
                     {
                         // Consume/deliver the dish
                         Debug.Log($"Dish {gameObject.name} delivered at {slot.name}");
+                        FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject);
                         Destroy(gameObject);
                         return true;
                     }
@@ -129,6 +136,7 @@ public class InteractableObject : MonoBehaviour
                         slot.isOccupied = true;
                         occupiedSlot = slot;
                         Debug.Log($"Dish {gameObject.name} placed into delivery slot {slot.name}");
+                        FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject);
                         return true;
                     }
                 }
@@ -145,6 +153,7 @@ public class InteractableObject : MonoBehaviour
                 slot.isOccupied = true;
                 occupiedSlot = slot;
                 Debug.Log($"{gameObject.name} placed into slot {slot.name} at {occupiedSlot.GetPosition()} (preserved Y={pickupYAtPickup})");
+
                 // If this slot is linked to a Dish, notify it that an ingredient was placed here
                 if (slot.linkedDish != null)
                 {
@@ -152,11 +161,13 @@ public class InteractableObject : MonoBehaviour
                     if (applied)
                     {
                         // Ingredient was consumed by the dish, destroy this object
+                        FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject);
                         Destroy(gameObject);
-                        // early return — object destroyed
                         return true;
                     }
                 }
+
+                FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject);
                 return true;
             }
         }
@@ -173,6 +184,7 @@ public class InteractableObject : MonoBehaviour
             }
 
             Debug.Log($"{gameObject.name} placed down at position {transform.position}");
+            FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject);
             return true;
         }
         else
@@ -255,10 +267,14 @@ public class InteractableObject : MonoBehaviour
         if (!heightOk) return false;
 
         // If this object is an ingredient, only allow pickup if there is at least one Dish
-        // that can accept this ingredient now.
+        // that can accept this ingredient now. If no dishes exist yet, allow pickup anyway.
         if (ingredientType != IngredientType.None)
         {
             Dish[] dishes = FindObjectsByType<Dish>(FindObjectsSortMode.None);
+
+            // Si no hi ha cap Dish a l'escena, permet agafar igualment
+            if (dishes.Length == 0) return true;
+
             foreach (var d in dishes)
             {
                 if (d != null && d.CanAccept(ingredientType)) return true;
@@ -291,7 +307,7 @@ public class InteractableObject : MonoBehaviour
             Vector3 sPos = slot.GetPosition();
             Vector2 slotXZ = new Vector2(sPos.x, sPos.z);
             float dist = Vector2.Distance(playerXZ, slotXZ);
-            if (dist >= minDist) continue; // only consider closer slots
+            if (dist >= minDist) continue;
 
             // Determine if this slot can accept placement:
             // - empty slots (not occupied) are acceptable
@@ -300,13 +316,12 @@ public class InteractableObject : MonoBehaviour
             if (!slot.isOccupied) slotAccepts = true;
             else if (slot.linkedDish != null)
             {
-                // allow placing onto an occupied slot if the linked dish can accept this ingredient
+                // Allow placing onto an occupied slot if the linked dish can accept this ingredient
                 slotAccepts = slot.linkedDish.CanAccept(ingredientType);
             }
 
             if (!slotAccepts) continue;
 
-            // accept this slot as the current closest
             minDist = dist;
             closest = slot;
         }
