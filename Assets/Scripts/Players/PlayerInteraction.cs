@@ -73,7 +73,7 @@ public class PlayerInteraction : MonoBehaviour
             if (obj.IsHeld()) continue;
 
             // Player must be at or below object's Y position to pick it up
-            if (obj.CanBePickedUp(playerPos))
+            if (obj.CanBePickedUp(playerPos, this))
             {
                 PickUpObject(obj);
                 break; // Only pick up one object at a time
@@ -94,7 +94,7 @@ public class PlayerInteraction : MonoBehaviour
         {
             InteractableObject obj = heldObjects[i];
             
-            if (obj.ShouldBePlacedDown(playerPos))
+            if (obj.ShouldBePlacedDown(playerPos, this))
             {
                 PlaceObjectDown(obj);
             }
@@ -109,6 +109,8 @@ public class PlayerInteraction : MonoBehaviour
         if (obj == null || heldObjects.Contains(obj)) return;
 
         obj.PickUp(this);
+        // claim ownership when picked up
+        obj.SetOwner(this);
         heldObjects.Add(obj);
         
         Debug.Log($"Player picked up {obj.gameObject.name}. Holding {heldObjects.Count} object(s)");

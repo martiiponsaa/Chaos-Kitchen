@@ -15,6 +15,16 @@ public class PlacementSlot : MonoBehaviour
     public bool consumeOnPlace = false;
     // Optional linked Dish that occupies this slot (assign in inspector)
     public Dish linkedDish;
+    [Tooltip("Assign this slot to a specific player (optional). If set, only that player may use this slot.")]
+    public PlayerInteraction assignedPlayer;
+
+    [Header("Processing Slot")]
+    [Tooltip("If true, this slot will process/transform placed ingredients immediately (e.g., cook meat in a pan)")]
+    public bool isProcessingSlot = false;
+    [Tooltip("Ingredient type this slot accepts for processing (Ignored if None)")]
+    public IngredientType acceptsIngredient = IngredientType.None;
+    [Tooltip("Resulting ingredient type after processing (set to same type for no change)")]
+    public IngredientType producesIngredient = IngredientType.None;
 
     // Static registry for fast lookups
     public static readonly List<PlacementSlot> all = new List<PlacementSlot>();
@@ -50,5 +60,37 @@ public class PlacementSlot : MonoBehaviour
             Gizmos.DrawCube(bc.center, bc.size);
         }
 #endif
+    }
+
+    /// <summary>
+    /// Called by InteractableObject when an object is placed into this slot.
+    /// Allows processing slots to transform ingredient objects immediately.
+    /// </summary>
+    public void OnObjectPlaced(InteractableObject obj)
+    {
+        if (obj == null) return;
+
+        if (isProcessingSlot && acceptsIngredient != IngredientType.None)
+        {
+            var cur = obj.GetIngredientType();
+            if (cur == acceptsIngredient)
+            {
+                // Transform immediately (simple cooking placeholder)
+                if (producesIngredient != IngredientType.None)
+                {
+                    obj.SetIngredientType(producesIngredient);
+                    Debug.Log($"Processed {cur} -> {producesIngredient} on slot {name}");
+                }
+            }
+        }
+        // Execute any ingredient action components attached to the placed object
+        var actions = obj.GetComponents<MonoBehaviour>();
+        foreach (var a in actions)
+        {
+            if (a is IIngredientAction ia)
+            {
+                ia.Execute(this);
+            }
+        }
     }
 }

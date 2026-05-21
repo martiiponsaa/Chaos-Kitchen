@@ -13,7 +13,7 @@ public class Dish : InteractableObject
     private int currentStep = 0;
     private List<IngredientType> applied = new List<IngredientType>();
     private bool isCompleted = false;
-
+    // natalia was here
     public bool IsCompleted => isCompleted;
 
     // Check whether this dish accepts the given ingredient right now
@@ -24,16 +24,26 @@ public class Dish : InteractableObject
         return recipe.steps[currentStep] == type;
     }
 
+    public PlayerInteraction GetAssignedPlayer() => GetOwner();
+
     // Called when an ingredient InteractableObject is placed onto the linked slot
     public bool ApplyIngredient(InteractableObject ingredientObj)
     {
         if (ingredientObj == null) return false;
         IngredientType type = IngredientType.None;
-        // Attempt to read ingredient type from the object if available
-        var field = ingredientObj.GetType().GetField("ingredientType", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        if (field != null)
+        // Prefer public API if object is InteractableObject
+        if (ingredientObj is InteractableObject io)
         {
-            type = (IngredientType)field.GetValue(ingredientObj);
+            type = io.GetIngredientType();
+        }
+        else
+        {
+            // Fallback: try to read private field via reflection
+            var field = ingredientObj.GetType().GetField("ingredientType", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                type = (IngredientType)field.GetValue(ingredientObj);
+            }
         }
 
         if (!CanAccept(type))
@@ -74,9 +84,9 @@ public class Dish : InteractableObject
     }
 
     // Dishes are pickable only once completed
-    public override bool CanBePickedUp(Vector3 playerPos)
+    public override bool CanBePickedUp(Vector3 playerPos, PlayerInteraction player = null)
     {
         if (!isCompleted) return false;
-        return base.CanBePickedUp(playerPos);
+        return base.CanBePickedUp(playerPos, player);
     }
 }
