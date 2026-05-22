@@ -116,7 +116,7 @@ public class GuidanceManager : MonoBehaviour
     private void SetHighlight(GameObject obj, bool on)
     {
         if (obj == null) return;
-        Highligh h = obj.GetComponent<Highligh>();
+        Highligh h = obj.GetComponentInChildren<Highligh>();
         Debug.Log($"SetHighlight: {obj.name} → {on}, Highligh trobat: {h != null}");
         if (h != null)
         {
@@ -140,7 +140,7 @@ public class GuidanceManager : MonoBehaviour
             if (slot != null) owner = slot.assignedPlayer;
         }
 
-        var h = obj.GetComponent<Highligh>();
+        var h = obj.GetComponentInChildren<Highligh>();
         if (h == null) return;
 
         if (owner == null)

@@ -81,7 +81,7 @@ public class InteractableObject : MonoBehaviour
         pickupYAtPickup = transform.position.y;
 
         // Stop highlight feedback and notify guidance system
-        Highligh highlight = GetComponent<Highligh>();
+        Highligh highlight = GetComponentInChildren<Highligh>();
         if (highlight != null) highlight.StopHighlight();
         FindObjectOfType<GuidanceManager>()?.OnIngredientPickedUp(gameObject, player);
 

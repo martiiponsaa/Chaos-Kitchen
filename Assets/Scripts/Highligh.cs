@@ -27,7 +27,7 @@ public class Highligh : MonoBehaviour
 
     void Start()
     {
-        rend = GetComponent<Renderer>();
+        rend = GetComponentInChildren<Renderer>();
         if (rend == null) return;
 
         mpb = new MaterialPropertyBlock();
