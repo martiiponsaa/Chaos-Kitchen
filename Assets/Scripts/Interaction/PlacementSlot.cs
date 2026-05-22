@@ -13,6 +13,8 @@ public class PlacementSlot : MonoBehaviour
     public bool acceptOnlyDishes = false;
     // If true and a dish is placed here, the dish will be consumed (delivered) instead of being snapped.
     public bool consumeOnPlace = false;
+    [Tooltip("Final dish ingredient types this slot accepts. Leave empty to accept any completed dish.")]
+    public IngredientType[] acceptedDishTypes = new IngredientType[0];
     // Optional linked Dish that occupies this slot (assign in inspector)
     public Dish linkedDish;
     [Tooltip("Assign this slot to a specific player (optional). If set, only that player may use this slot.")]
@@ -92,5 +94,26 @@ public class PlacementSlot : MonoBehaviour
                 ia.Execute(this);
             }
         }
+    }
+
+    public bool CanAcceptDish(Dish dish)
+    {
+        if (dish == null || !dish.IsCompleted) return false;
+
+        if (acceptedDishTypes == null || acceptedDishTypes.Length == 0)
+        {
+            return true;
+        }
+
+        var dishType = dish.GetIngredientType();
+        foreach (var acceptedType in acceptedDishTypes)
+        {
+            if (acceptedType == dishType)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

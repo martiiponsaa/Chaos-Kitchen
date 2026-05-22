@@ -134,6 +134,12 @@ public class InteractableObject : MonoBehaviour
                         return false;
                     }
 
+                    if (!slot.CanAcceptDish(dishObj))
+                    {
+                        Debug.LogWarning($"Slot {slot.name} does not accept completed dish type {dishObj.GetIngredientType()}");
+                        return false;
+                    }
+
                     if (slot.consumeOnPlace)
                     {
                         // Consume/deliver the dish
@@ -402,6 +408,7 @@ public class InteractableObject : MonoBehaviour
         {
             // Skip dish-only slots when this object is not a Dish
             if (slot.acceptOnlyDishes && !(this is Dish)) continue;
+            if (slot.acceptOnlyDishes && this is Dish dishObj && !slot.CanAcceptDish(dishObj)) continue;
             Vector3 sPos = slot.GetPosition();
             Vector2 slotXZ = new Vector2(sPos.x, sPos.z);
             float dist = Vector2.Distance(playerXZ, slotXZ);

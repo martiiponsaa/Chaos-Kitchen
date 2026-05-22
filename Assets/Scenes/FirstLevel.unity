@@ -2793,6 +2793,9 @@ MonoBehaviour:
   center: {fileID: 2130093666}
   acceptOnlyDishes: 1
   consumeOnPlace: 1
+  acceptedDishTypes:
+  - 9
+  - 10
   linkedDish: {fileID: 0}
   assignedPlayer: {fileID: 2025534041}
   isProcessingSlot: 0

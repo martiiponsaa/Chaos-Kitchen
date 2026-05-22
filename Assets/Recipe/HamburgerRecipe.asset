@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fd5d583c5d43c04980f67b96bf2f453, type: 3}
   m_Name: HamburgerRecipe
   m_EditorClassIdentifier: 
-  steps: 0600000002000000030000000500000006000000
+  steps: 0600000002000000030000000500000007000000
