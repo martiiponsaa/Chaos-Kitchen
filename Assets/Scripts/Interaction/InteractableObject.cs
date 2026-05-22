@@ -44,6 +44,8 @@ public class InteractableObject : MonoBehaviour
     public PlayerInteraction GetOwner() => ownerPlayer;
     public void SetOwner(PlayerInteraction p) => ownerPlayer = p;
 
+    protected float GetPickupHeightTolerance() => pickupHeightTolerance;
+
     private bool isHeld = false;
     private PlayerInteraction currentHolder;
     private Vector3 lastValidPosition;

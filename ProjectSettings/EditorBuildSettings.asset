@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/StarsScene.unity
     guid: b020dbd861cfc534f894133a23bb705e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/FirstLevelPocho.unity
     guid: 8a0d51e8ea9f5cc49934ffca2259fbd8
   - enabled: 1

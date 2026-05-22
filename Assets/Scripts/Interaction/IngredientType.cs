@@ -6,6 +6,9 @@ public enum IngredientType
     Cheese,
     Meat,
     CookedMeat,
-    Bread,
-    // Add more ingredient types as needed
+    BreadBottom,
+    BreadTop,
+    Pizza, 
+    CookedPizza, 
+    Hamburger
 }

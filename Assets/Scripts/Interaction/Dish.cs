@@ -10,6 +10,9 @@ public class Dish : InteractableObject
     [Tooltip("Recipe to prepare on this dish")]
     public RecipeSO recipe;
 
+    [Tooltip("Ingredient type this dish becomes when the recipe is completed")]
+    [SerializeField] private IngredientType completedIngredientType = IngredientType.None;
+
     private int currentStep = 0;
     private List<IngredientType> applied = new List<IngredientType>();
     private bool isCompleted = false;
@@ -79,6 +82,10 @@ public class Dish : InteractableObject
     private void MarkCompleted()
     {
         isCompleted = true;
+        if (completedIngredientType != IngredientType.None)
+        {
+            SetIngredientType(completedIngredientType);
+        }
         Debug.Log($"Dish completed: {gameObject.name}");
         // Optionally add visual feedback here
     }
@@ -87,6 +94,12 @@ public class Dish : InteractableObject
     public override bool CanBePickedUp(Vector3 playerPos, PlayerInteraction player = null)
     {
         if (!isCompleted) return false;
-        return base.CanBePickedUp(playerPos, player);
+
+        bool heightOk = Mathf.Abs(playerPos.y - transform.position.y) <= GetPickupHeightTolerance();
+        if (!heightOk) return false;
+
+        if (GetOwner() != null && GetOwner() != player) return false;
+
+        return true;
     }
 }
