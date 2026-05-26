@@ -168,7 +168,7 @@ public class Dish : InteractableObject
         }
 
         currentVisualInstance = Instantiate(visualPrefab, transform, false);
-        ResetVisualTransform(currentVisualInstance);
+        ResetStepVisualTransform(currentVisualInstance);
         currentVisualIndex = targetIndex;
         currentVisualIsCompleted = false;
     }
@@ -197,12 +197,12 @@ public class Dish : InteractableObject
         ClearCurrentVisual();
 
         currentVisualInstance = Instantiate(visualPrefab, transform, false);
-        ResetVisualTransform(currentVisualInstance);
+        ResetCompletedVisualTransform(currentVisualInstance);
         currentVisualIndex = Mathf.Max(0, currentStep - 1);
         currentVisualIsCompleted = true;
     }
 
-    private void ResetVisualTransform(GameObject visualInstance)
+    private void ResetStepVisualTransform(GameObject visualInstance)
     {
         if (visualInstance == null)
         {
@@ -210,7 +210,20 @@ public class Dish : InteractableObject
         }
 
         Transform visualTransform = visualInstance.transform;
-        visualTransform.localPosition = Vector3.zero;
+        visualTransform.localPosition = new Vector3(0f, 1f, 0f);
+        visualTransform.localRotation = Quaternion.identity;
+        visualTransform.localScale = GetScaleCompensation(transform, visualTransform.localScale);
+    }
+
+    private void ResetCompletedVisualTransform(GameObject visualInstance)
+    {
+        if (visualInstance == null)
+        {
+            return;
+        }
+
+        Transform visualTransform = visualInstance.transform;
+        visualTransform.localPosition = new Vector3(0f, 1f, 0f);
         visualTransform.localRotation = Quaternion.identity;
         visualTransform.localScale = GetScaleCompensation(transform, visualTransform.localScale);
     }
