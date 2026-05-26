@@ -19,13 +19,25 @@ public class PlayerInteraction : MonoBehaviour
     private List<InteractableObject> nearbyObjects = new List<InteractableObject>();
     
     private PlayerMovement playerMovement;
+    private HandInteraction handInteraction;
 
     private void Start()
     {
-        playerMovement = GetComponent<PlayerMovement>();
+        playerMovement = GetComponentInParent<PlayerMovement>();
         if (playerMovement == null)
         {
             Debug.LogError("PlayerInteraction: PlayerMovement component not found!");
+        }
+
+        GameObject handSearchRoot = playerMovement != null ? playerMovement.gameObject : transform.root.gameObject;
+        handInteraction = handSearchRoot.GetComponentInChildren<HandInteraction>(true);
+        if (handInteraction == null)
+        {
+            Debug.LogWarning($"PlayerInteraction: HandInteraction component not found under {handSearchRoot.name}.");
+        }
+        else
+        {
+            handInteraction.OpenHand();
         }
     }
 
@@ -112,6 +124,11 @@ public class PlayerInteraction : MonoBehaviour
         // claim ownership when picked up
         obj.SetOwner(this);
         heldObjects.Add(obj);
+
+        if (handInteraction != null)
+        {
+            handInteraction.CloseHand();
+        }
         
         Debug.Log($"Player picked up {obj.gameObject.name}. Holding {heldObjects.Count} object(s)");
     }
@@ -127,6 +144,12 @@ public class PlayerInteraction : MonoBehaviour
         if (placed)
         {
             heldObjects.Remove(obj);
+
+            if (heldObjects.Count == 0 && handInteraction != null)
+            {
+                handInteraction.OpenHand();
+            }
+
             Debug.Log($"Player placed down {obj.gameObject.name}. Holding {heldObjects.Count} object(s)");
         }
         else
