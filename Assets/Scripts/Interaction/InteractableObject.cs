@@ -144,6 +144,7 @@ public class InteractableObject : MonoBehaviour
                     {
                         // Consume/deliver the dish
                         Debug.Log($"Dish {gameObject.name} delivered at {slot.name}");
+                        LevelFlowManager.Instance?.NotifyDishDelivered(dishObj, placingPlayer);
                         FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject, placingPlayer);
                         Destroy(gameObject);
                         return true;
@@ -155,6 +156,7 @@ public class InteractableObject : MonoBehaviour
                         slot.isOccupied = true;
                         occupiedSlot = slot;
                         Debug.Log($"Dish {gameObject.name} placed into delivery slot {slot.name}");
+                        LevelFlowManager.Instance?.NotifyDishDelivered(dishObj, placingPlayer);
                         FindObjectOfType<GuidanceManager>()?.OnIngredientPlaced(gameObject, placingPlayer);
                         return true;
                     }
