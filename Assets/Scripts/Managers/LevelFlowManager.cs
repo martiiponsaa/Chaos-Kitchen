@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
@@ -40,6 +41,7 @@ public class LevelFlowManager : MonoBehaviour
     [Header("Sounds")]
     [SerializeField] private AudioClip winSound;
     [SerializeField] private AudioClip loseSound;
+    [SerializeField] private AudioMixerGroup sfxOutputGroup;
     private AudioSource audioSource;
 
     [Header("UI Text")]
@@ -62,6 +64,10 @@ public class LevelFlowManager : MonoBehaviour
 
         Instance = this;
         audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.outputAudioMixerGroup = sfxOutputGroup;
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f;
+        audioSource.dopplerLevel = 0f;
     }
 
     private void Start()
@@ -313,7 +319,7 @@ public class LevelFlowManager : MonoBehaviour
         if (loseSound != null) audioSource.PlayOneShot(loseSound);
         if (loseText != null) loseText.SetActive(true);
 
-        reloadCoroutine = StartCoroutine(ReloadSceneAfterDelay()); //com que això es crida si perds ja està bé que el nivell es reinici. 
+        reloadCoroutine = StartCoroutine(ReloadSceneAfterDelay()); //com que aixï¿½ es crida si perds ja estï¿½ bï¿½ que el nivell es reinici. 
     }
 
     private void StopTimersAndHide()
@@ -353,7 +359,7 @@ public class LevelFlowManager : MonoBehaviour
         SceneManager.LoadScene(currentScene.buildIndex);
     }
 
-    //funció per cridar la seguent escena en comptes del mateix per si es guanya. 
+    //funciï¿½ per cridar la seguent escena en comptes del mateix per si es guanya. 
     private IEnumerator LoadNextSceneAfterDelay()
     {
         yield return new WaitForSeconds(reloadDelaySeconds);
@@ -361,15 +367,15 @@ public class LevelFlowManager : MonoBehaviour
         Scene currentScene = SceneManager.GetActiveScene();
         int nextSceneIndex = currentScene.buildIndex + 1;
 
-        // Comprovem si hi ha un següent nivell a la llista de Build Settings
+        // Comprovem si hi ha un segï¿½ent nivell a la llista de Build Settings
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
             SceneManager.LoadScene(nextSceneIndex);
         }
         else
         {
-            Debug.LogWarning("LevelFlowManager: No hi ha més nivells introduïts al Build Settings! Tornant al menú o primer nivell.");
-            // Opcional: Aquí pots carregar l'escena 0 (menú principal) si s'ha acabat el joc:
+            Debug.LogWarning("LevelFlowManager: No hi ha mï¿½s nivells introduï¿½ts al Build Settings! Tornant al menï¿½ o primer nivell.");
+            // Opcional: Aquï¿½ pots carregar l'escena 0 (menï¿½ principal) si s'ha acabat el joc:
             // SceneManager.LoadScene(0);
         }
     }

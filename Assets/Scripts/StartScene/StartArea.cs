@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 [RequireComponent(typeof(Collider))]
 public class StartArea : MonoBehaviour
@@ -42,8 +43,11 @@ public class StartArea : MonoBehaviour
 
     //So quan entren a la start area 
     [Header("Efectes de So")]
-    [Tooltip("Arrossega aquí el so (plim) que sonarà quan el jugador entri al cercle")]
+    [Tooltip("Arrossega aquï¿½ el so (plim) que sonarï¿½ quan el jugador entri al cercle")]
     public AudioClip enterSound;
+
+    [Tooltip("Audio mixer group used for SFX playback. Assign the SFX group from MainAudioMixer.")]
+    [SerializeField] private AudioMixerGroup sfxOutputGroup;
 
     bool _previousOccupied = false;
 
@@ -115,9 +119,7 @@ public class StartArea : MonoBehaviour
                     targetRenderer.material = highlightMaterial;
                     if (enterSound != null)
                     {
-                        // Això reprodueix el so directament en la posició del cercle sense necessitat de crear un altaveu fix
-                        AudioSource.PlayClipAtPoint(enterSound, transform.position);
-                        //AudioSource.PlayClipAtPoint(enterSound, cameraPos);
+                        PlaySfxAtPoint(enterSound, transform.position);
                     }
                 }
                 else
@@ -136,6 +138,25 @@ public class StartArea : MonoBehaviour
                 Debug.Log($"[{gameObject.name}] Expected player {expectedPlayerId} entered area.");
             }
         }
+    }
+
+    private void PlaySfxAtPoint(AudioClip clip, Vector3 position)
+    {
+        if (clip == null) return;
+
+        GameObject temp = new GameObject($"SFX_{clip.name}");
+        temp.transform.position = position;
+
+        AudioSource source = temp.AddComponent<AudioSource>();
+        source.clip = clip;
+        source.outputAudioMixerGroup = sfxOutputGroup;
+        source.playOnAwake = false;
+        source.spatialBlend = 1f;
+        source.dopplerLevel = 0f;
+        source.Play();
+
+        float lifetime = clip.length / Mathf.Max(source.pitch, 0.01f);
+        Destroy(temp, lifetime + 0.1f);
     }
 
 

@@ -1017,7 +1017,8 @@ MonoBehaviour:
   detectionMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  enterSound: {fileID: 8300000, guid: 18f2aad44ca98954eb37c468d1cd061b, type: 3}
+  enterSound: {fileID: 8300000, guid: ca506e3b31610d146ab242971bdb9856, type: 3}
+  sfxOutputGroup: {fileID: 4284510829063109932, guid: 7f46ac3e1464ccd42ae71b833abc9b61, type: 2}
 --- !u!1 &133213332
 GameObject:
   m_ObjectHideFlags: 0
@@ -5912,7 +5913,8 @@ MonoBehaviour:
   detectionMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  enterSound: {fileID: 8300000, guid: 18f2aad44ca98954eb37c468d1cd061b, type: 3}
+  enterSound: {fileID: 8300000, guid: ca506e3b31610d146ab242971bdb9856, type: 3}
+  sfxOutputGroup: {fileID: 4284510829063109932, guid: 7f46ac3e1464ccd42ae71b833abc9b61, type: 2}
 --- !u!1 &1339729023
 GameObject:
   m_ObjectHideFlags: 0
@@ -9616,6 +9618,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   detectionRadius: 1
   maxHeldObjects: 1
+  grabSound: {fileID: 0}
+  dropSound: {fileID: 0}
+  sfxOutputGroup: {fileID: 0}
 --- !u!1001 &1924114710
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10342,6 +10347,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   detectionRadius: 1
   maxHeldObjects: 1
+  grabSound: {fileID: 0}
+  dropSound: {fileID: 0}
+  sfxOutputGroup: {fileID: 0}
 --- !u!1 &2039963491
 GameObject:
   m_ObjectHideFlags: 0

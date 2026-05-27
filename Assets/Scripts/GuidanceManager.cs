@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using TMPro;
 
 public class GuidanceManager : MonoBehaviour
 {
@@ -9,9 +10,15 @@ public class GuidanceManager : MonoBehaviour
         public GameObject slot;
     }
 
-    [Header("Passos de la recepta en ordre")]
+    [Header("Recipe Steps In Order")]
     public RecipeStep[] stepsPlayer1;
     public RecipeStep[] stepsPlayer2;
+
+    [Header("Recipe UI")]
+    [SerializeField] private TextMeshProUGUI player1StepText;
+    [SerializeField] private TextMeshProUGUI player2StepText;
+    [SerializeField] private string player1Label = "Player 1";
+    [SerializeField] private string player2Label = "Player 2";
 
     private int currentStepP1 = 0;
     private int currentStepP2 = 0;
@@ -47,8 +54,10 @@ public class GuidanceManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GuidanceManager: no hi ha steps o ingredient és null!");
+            Debug.LogError("GuidanceManager: no steps are configured or ingredient is null.");
         }
+
+        UpdateAllInstructionTexts();
     }
 
     public void OnIngredientPickedUp(GameObject pickedObject, PlayerInteraction player)
@@ -61,6 +70,7 @@ public class GuidanceManager : MonoBehaviour
             SetHighlightForOwners(stepsPlayer1[currentStepP1].ingredient, false);
             SetHighlightForOwners(stepsPlayer1[currentStepP1].slot, true);
             waitingForDropP1 = true;
+            UpdatePlayerInstructionText(true);
             return;
         }
 
@@ -72,6 +82,7 @@ public class GuidanceManager : MonoBehaviour
             SetHighlightForOwners(stepsPlayer2[currentStepP2].ingredient, false);
             SetHighlightForOwners(stepsPlayer2[currentStepP2].slot, true);
             waitingForDropP2 = true;
+            UpdatePlayerInstructionText(false);
             return;
         }
     }
@@ -92,6 +103,8 @@ public class GuidanceManager : MonoBehaviour
             else
                 Debug.Log("Player1 recipe completed!");
 
+            UpdatePlayerInstructionText(true);
+
             return;
         }
 
@@ -109,8 +122,51 @@ public class GuidanceManager : MonoBehaviour
             else
                 Debug.Log("Player2 recipe completed!");
 
+            UpdatePlayerInstructionText(false);
+
             return;
         }
+    }
+
+    private void UpdateAllInstructionTexts()
+    {
+        UpdatePlayerInstructionText(true);
+        UpdatePlayerInstructionText(false);
+    }
+
+    private void UpdatePlayerInstructionText(bool isPlayer1)
+    {
+        TextMeshProUGUI targetText = isPlayer1 ? player1StepText : player2StepText;
+        if (targetText == null) return;
+
+        RecipeStep[] steps = isPlayer1 ? stepsPlayer1 : stepsPlayer2;
+        int currentStep = isPlayer1 ? currentStepP1 : currentStepP2;
+        bool waitingForDrop = isPlayer1 ? waitingForDropP1 : waitingForDropP2;
+        string label = isPlayer1 ? player1Label : player2Label;
+
+        targetText.text = BuildInstructionText(label, steps, currentStep, waitingForDrop);
+    }
+
+    private string BuildInstructionText(string playerLabel, RecipeStep[] steps, int currentStep, bool waitingForDrop)
+    {
+        if (steps == null || steps.Length == 0)
+        {
+            return $"{playerLabel}: no recipe steps configured.";
+        }
+
+        if (currentStep >= steps.Length)
+        {
+            return $"{playerLabel}: recipe completed!";
+        }
+
+        RecipeStep step = steps[currentStep];
+        string ingredientName = step != null && step.ingredient != null ? step.ingredient.name : "ingredient";
+        string slotName = step != null && step.slot != null ? step.slot.name : "target slot";
+        string action = waitingForDrop
+            ? $"Place {ingredientName} on {slotName}."
+            : $"Pick up {ingredientName}.";
+
+        return $"{playerLabel} ({currentStep + 1}/{steps.Length}): {action}";
     }
 
     private void SetHighlight(GameObject obj, bool on)

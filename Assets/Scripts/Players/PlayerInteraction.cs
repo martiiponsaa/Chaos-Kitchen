@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 using System.Collections.Generic;
 
 /// <summary>
@@ -15,11 +16,14 @@ public class PlayerInteraction : MonoBehaviour
     [Tooltip("Maximum number of objects player can hold at once (for future expansion)")]
     [SerializeField] private int maxHeldObjects = 1;
 
-    [Header("Sons d'Interacció")]
-    [Tooltip("Arrossega el so que farà el personatge quan agafi un objecte")]
+    [Header("Sons d'Interacciï¿½")]
+    [Tooltip("Arrossega el so que farï¿½ el personatge quan agafi un objecte")]
     [SerializeField] private AudioClip grabSound;
-    [Tooltip("Arrossega el so que farà el personatge quan deixi anar un objecte")]
+    [Tooltip("Arrossega el so que farï¿½ el personatge quan deixi anar un objecte")]
     [SerializeField] private AudioClip dropSound;
+
+    [Tooltip("Audio mixer group used for SFX playback. Assign the SFX group from MainAudioMixer.")]
+    [SerializeField] private AudioMixerGroup sfxOutputGroup;
 
     private List<InteractableObject> heldObjects = new List<InteractableObject>();
     private List<InteractableObject> nearbyObjects = new List<InteractableObject>();
@@ -140,7 +144,7 @@ public class PlayerInteraction : MonoBehaviour
         if (grabSound != null)
         {
             Vector3 cameraPos = Camera.main != null ? Camera.main.transform.position : transform.position;
-            AudioSource.PlayClipAtPoint(grabSound, cameraPos);
+            PlaySfxAtPoint(grabSound, cameraPos);
         }
     }
 
@@ -165,7 +169,7 @@ public class PlayerInteraction : MonoBehaviour
             if (dropSound != null)
             {
                 Vector3 cameraPos = Camera.main != null ? Camera.main.transform.position : transform.position;
-                AudioSource.PlayClipAtPoint(dropSound, cameraPos);
+                PlaySfxAtPoint(dropSound, cameraPos);
             }
         }
         else
@@ -197,5 +201,24 @@ public class PlayerInteraction : MonoBehaviour
     public List<InteractableObject> GetHeldObjects()
     {
         return new List<InteractableObject>(heldObjects);
+    }
+
+    private void PlaySfxAtPoint(AudioClip clip, Vector3 position)
+    {
+        if (clip == null) return;
+
+        GameObject temp = new GameObject($"SFX_{clip.name}");
+        temp.transform.position = position;
+
+        AudioSource source = temp.AddComponent<AudioSource>();
+        source.clip = clip;
+        source.outputAudioMixerGroup = sfxOutputGroup;
+        source.playOnAwake = false;
+        source.spatialBlend = 1f;
+        source.dopplerLevel = 0f;
+        source.Play();
+
+        float lifetime = clip.length / Mathf.Max(source.pitch, 0.01f);
+        Destroy(temp, lifetime + 0.1f);
     }
 }
