@@ -40,6 +40,11 @@ public class StartArea : MonoBehaviour
     [Tooltip("Layers to include when checking for players")]
     public LayerMask detectionMask = ~0;
 
+    //So quan entren a la start area 
+    [Header("Efectes de So")]
+    [Tooltip("Arrossega aquí el so (plim) que sonarà quan el jugador entri al cercle")]
+    public AudioClip enterSound;
+
     bool _previousOccupied = false;
 
     Material _instancedMaterial;
@@ -106,8 +111,15 @@ public class StartArea : MonoBehaviour
             // If a highlight material is provided, swap materials. Otherwise adjust alpha.
             if (targetRenderer != null && highlightMaterial != null)
             {
-                if (found)
+                if (found) {
                     targetRenderer.material = highlightMaterial;
+                    if (enterSound != null)
+                    {
+                        // Això reprodueix el so directament en la posició del cercle sense necessitat de crear un altaveu fix
+                        AudioSource.PlayClipAtPoint(enterSound, transform.position);
+                        //AudioSource.PlayClipAtPoint(enterSound, cameraPos);
+                    }
+                }
                 else
                     targetRenderer.material = _originalMaterial;
             }

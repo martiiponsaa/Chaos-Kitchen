@@ -30,12 +30,21 @@ public class LevelFlowManager : MonoBehaviour
     [SerializeField] private List<DishObjective> objectives = new List<DishObjective>();
 
     [Header("Failure")]
-    [SerializeField] private float reloadDelaySeconds = 5f;
+    [SerializeField] private float reloadDelaySeconds = 7f;
 
     [Header("Events")]
     [SerializeField] private UnityEvent onLevelStarted;
     [SerializeField] private UnityEvent onLevelCompleted;
     [SerializeField] private UnityEvent onLevelFailed;
+
+    [Header("Sounds")]
+    [SerializeField] private AudioClip winSound;
+    [SerializeField] private AudioClip loseSound;
+    private AudioSource audioSource;
+
+    [Header("UI Text")]
+    [SerializeField] private GameObject winText;
+    [SerializeField] private GameObject loseText;
 
     private bool prepFinished;
     private bool levelActive;
@@ -44,6 +53,7 @@ public class LevelFlowManager : MonoBehaviour
 
     private void Awake()
     {
+
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -51,6 +61,7 @@ public class LevelFlowManager : MonoBehaviour
         }
 
         Instance = this;
+        audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     private void Start()
@@ -269,8 +280,16 @@ public class LevelFlowManager : MonoBehaviour
         StopTimersAndHide();
         PrepareInteractionState(true);
 
+        if (winSound != null) audioSource.PlayOneShot(winSound);
+        if (winText != null) winText.SetActive(true);
+
         Debug.Log("Level complete: all objectives delivered.");
         onLevelCompleted?.Invoke();
+
+        //Per carregar els nivells nous 
+        if (reloadCoroutine != null) StopCoroutine(reloadCoroutine);
+        reloadCoroutine = StartCoroutine(LoadNextSceneAfterDelay());
+
     }
 
     private void FailLevel()
@@ -291,7 +310,10 @@ public class LevelFlowManager : MonoBehaviour
             StopCoroutine(reloadCoroutine);
         }
 
-        reloadCoroutine = StartCoroutine(ReloadSceneAfterDelay());
+        if (loseSound != null) audioSource.PlayOneShot(loseSound);
+        if (loseText != null) loseText.SetActive(true);
+
+        reloadCoroutine = StartCoroutine(ReloadSceneAfterDelay()); //com que això es crida si perds ja està bé que el nivell es reinici. 
     }
 
     private void StopTimersAndHide()
@@ -329,5 +351,26 @@ public class LevelFlowManager : MonoBehaviour
         yield return new WaitForSeconds(reloadDelaySeconds);
         Scene currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(currentScene.buildIndex);
+    }
+
+    //funció per cridar la seguent escena en comptes del mateix per si es guanya. 
+    private IEnumerator LoadNextSceneAfterDelay()
+    {
+        yield return new WaitForSeconds(reloadDelaySeconds);
+
+        Scene currentScene = SceneManager.GetActiveScene();
+        int nextSceneIndex = currentScene.buildIndex + 1;
+
+        // Comprovem si hi ha un següent nivell a la llista de Build Settings
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            Debug.LogWarning("LevelFlowManager: No hi ha més nivells introduïts al Build Settings! Tornant al menú o primer nivell.");
+            // Opcional: Aquí pots carregar l'escena 0 (menú principal) si s'ha acabat el joc:
+            // SceneManager.LoadScene(0);
+        }
     }
 }

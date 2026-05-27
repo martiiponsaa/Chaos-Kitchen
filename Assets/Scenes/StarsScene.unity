@@ -1017,6 +1017,7 @@ MonoBehaviour:
   detectionMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  enterSound: {fileID: 8300000, guid: 18f2aad44ca98954eb37c468d1cd061b, type: 3}
 --- !u!1 &133213332
 GameObject:
   m_ObjectHideFlags: 0
@@ -5911,6 +5912,7 @@ MonoBehaviour:
   detectionMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  enterSound: {fileID: 8300000, guid: 18f2aad44ca98954eb37c468d1cd061b, type: 3}
 --- !u!1 &1339729023
 GameObject:
   m_ObjectHideFlags: 0

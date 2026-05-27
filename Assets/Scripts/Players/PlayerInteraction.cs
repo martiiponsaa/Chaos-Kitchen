@@ -15,6 +15,12 @@ public class PlayerInteraction : MonoBehaviour
     [Tooltip("Maximum number of objects player can hold at once (for future expansion)")]
     [SerializeField] private int maxHeldObjects = 1;
 
+    [Header("Sons d'Interacció")]
+    [Tooltip("Arrossega el so que farà el personatge quan agafi un objecte")]
+    [SerializeField] private AudioClip grabSound;
+    [Tooltip("Arrossega el so que farà el personatge quan deixi anar un objecte")]
+    [SerializeField] private AudioClip dropSound;
+
     private List<InteractableObject> heldObjects = new List<InteractableObject>();
     private List<InteractableObject> nearbyObjects = new List<InteractableObject>();
     
@@ -131,6 +137,11 @@ public class PlayerInteraction : MonoBehaviour
         }
         
         Debug.Log($"Player picked up {obj.gameObject.name}. Holding {heldObjects.Count} object(s)");
+        if (grabSound != null)
+        {
+            Vector3 cameraPos = Camera.main != null ? Camera.main.transform.position : transform.position;
+            AudioSource.PlayClipAtPoint(grabSound, cameraPos);
+        }
     }
 
     /// <summary>
@@ -151,6 +162,11 @@ public class PlayerInteraction : MonoBehaviour
             }
 
             Debug.Log($"Player placed down {obj.gameObject.name}. Holding {heldObjects.Count} object(s)");
+            if (dropSound != null)
+            {
+                Vector3 cameraPos = Camera.main != null ? Camera.main.transform.position : transform.position;
+                AudioSource.PlayClipAtPoint(dropSound, cameraPos);
+            }
         }
         else
         {
