@@ -2410,8 +2410,8 @@ MonoBehaviour:
   - ingredient: {fileID: 1623814445}
     slot: {fileID: 479480456}
   stepsPlayer2: []
-  player1StepText: {fileID: 0}
-  player2StepText: {fileID: 0}
+  player1StepText: {fileID: 1897720338}
+  player2StepText: {fileID: 1759273928}
   player1Label: Player 1
   player2Label: Player 2
   player1: {fileID: 2025534041}
