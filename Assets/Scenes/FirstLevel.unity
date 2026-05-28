@@ -2089,7 +2089,7 @@ MonoBehaviour:
   consumeOnPlace: 0
   acceptedDishTypes: 
   linkedDish: {fileID: 1477686100}
-  assignedPlayer: {fileID: 2025534041}
+  assignedPlayer: {fileID: 1905373658}
   isProcessingSlot: 0
   acceptsIngredient: 0
   producesIngredient: 0
@@ -2512,7 +2512,7 @@ MonoBehaviour:
   consumeOnPlace: 0
   acceptedDishTypes: 
   linkedDish: {fileID: 0}
-  assignedPlayer: {fileID: 2025534041}
+  assignedPlayer: {fileID: 1905373658}
   isProcessingSlot: 1
   acceptsIngredient: 8
   producesIngredient: 9
@@ -4659,6 +4659,7 @@ GameObject:
   m_Component:
   - component: {fileID: 818812597}
   - component: {fileID: 818812598}
+  - component: {fileID: 818812599}
   m_Layer: 0
   m_Name: 1.Ingredient_Cheese
   m_TagString: Untagged
@@ -4705,7 +4706,30 @@ MonoBehaviour:
   pickupYThreshold: 0.2
   pickupHeightTolerance: 0.15
   ingredientType: 3
-  ownerPlayer: {fileID: 2025534041}
+  ownerPlayer: {fileID: 1905373658}
+--- !u!136 &818812599
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 818812596}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &822341103
 GameObject:
   m_ObjectHideFlags: 0
@@ -5295,6 +5319,29 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 855800695560036973, guid: d930b6ca35e5c494ca9ed635d1593804, type: 3}
   m_PrefabInstance: {fileID: 2230464648782680171}
   m_PrefabAsset: {fileID: 0}
+--- !u!136 &909657717
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 909657714}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &911333426
 GameObject:
   m_ObjectHideFlags: 0
@@ -5341,6 +5388,7 @@ GameObject:
   m_Component:
   - component: {fileID: 911668147}
   - component: {fileID: 911668148}
+  - component: {fileID: 911668149}
   m_Layer: 0
   m_Name: 1.Ingredient_Tomato
   m_TagString: Untagged
@@ -5387,7 +5435,30 @@ MonoBehaviour:
   pickupYThreshold: 0.2
   pickupHeightTolerance: 0.15
   ingredientType: 2
-  ownerPlayer: {fileID: 2025534041}
+  ownerPlayer: {fileID: 1905373658}
+--- !u!136 &911668149
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 911668146}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &917591100
 GameObject:
   m_ObjectHideFlags: 0
@@ -6624,7 +6695,7 @@ MonoBehaviour:
   consumeOnPlace: 0
   acceptedDishTypes: 
   linkedDish: {fileID: 411280753}
-  assignedPlayer: {fileID: 2025534041}
+  assignedPlayer: {fileID: 1905373658}
   isProcessingSlot: 0
   acceptsIngredient: 0
   producesIngredient: 0
@@ -7050,7 +7121,7 @@ MonoBehaviour:
   consumeOnPlace: 1
   acceptedDishTypes: 090000000a000000
   linkedDish: {fileID: 0}
-  assignedPlayer: {fileID: 2025534041}
+  assignedPlayer: {fileID: 1905373658}
   isProcessingSlot: 0
   acceptsIngredient: 0
   producesIngredient: 0
@@ -9233,7 +9304,7 @@ MonoBehaviour:
   consumeOnPlace: 0
   acceptedDishTypes: 
   linkedDish: {fileID: 0}
-  assignedPlayer: {fileID: 2025534041}
+  assignedPlayer: {fileID: 1905373658}
   isProcessingSlot: 1
   acceptsIngredient: 4
   producesIngredient: 5
@@ -14857,7 +14928,7 @@ PrefabInstance:
     - target: {fileID: 5481885151737781159, guid: d930b6ca35e5c494ca9ed635d1593804, type: 3}
       propertyPath: ownerPlayer
       value: 
-      objectReference: {fileID: 2025534041}
+      objectReference: {fileID: 1905373658}
     - target: {fileID: 6524572224961453432, guid: d930b6ca35e5c494ca9ed635d1593804, type: 3}
       propertyPath: m_Name
       value: 1.Ingredient_Base
@@ -14865,7 +14936,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6524572224961453432, guid: d930b6ca35e5c494ca9ed635d1593804, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 909657717}
   m_SourcePrefab: {fileID: 100100000, guid: d930b6ca35e5c494ca9ed635d1593804, type: 3}
 --- !u!1001 &2873135136186944764
 PrefabInstance:
