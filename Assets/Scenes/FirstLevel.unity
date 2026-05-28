@@ -3158,7 +3158,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prepCountdownSeconds: 2
-  levelDurationSeconds: 5
+  levelDurationSeconds: 500
   prepTimer: {fileID: 1688422425}
   levelTimer: {fileID: 165757223}
   players:
@@ -15107,7 +15107,7 @@ MonoBehaviour:
   - {fileID: 2039963491}
   calibrationSaveFilePath: D:\Calibration\Eje Z
   playerSelected: 1
-  trackingDisabledPlayerSpeed: 5
+  trackingDisabledPlayerSpeed: 50
 --- !u!1 &2081291168
 GameObject:
   m_ObjectHideFlags: 0

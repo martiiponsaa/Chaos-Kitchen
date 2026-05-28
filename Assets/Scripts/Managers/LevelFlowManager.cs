@@ -364,7 +364,10 @@ public class LevelFlowManager : MonoBehaviour
 
             if (objective.dish != deliveredDish)
             {
-                continue;
+                if (!DoesObjectiveMatchDeliveredDish(objective, deliveredDish, deliveringPlayer))
+                {
+                    continue;
+                }
             }
 
             if (objective.player != null && objective.player != deliveringPlayer)
@@ -385,6 +388,26 @@ public class LevelFlowManager : MonoBehaviour
         }
     }
 
+    private bool DoesObjectiveMatchDeliveredDish(DishObjective objective, Dish deliveredDish, PlayerInteraction deliveringPlayer)
+    {
+        if (objective == null || objective.dish == null || deliveredDish == null)
+        {
+            return false;
+        }
+
+        if (objective.player != null && objective.player != deliveringPlayer)
+        {
+            return false;
+        }
+
+        if (objective.dish.recipe != null && deliveredDish.recipe != null && objective.dish.recipe == deliveredDish.recipe)
+        {
+            return true;
+        }
+
+        return objective.dish.GetIngredientType() == deliveredDish.GetIngredientType();
+    }
+
     private bool AreAllObjectivesCompleted()
     {
         if (objectives == null || objectives.Count == 0)
@@ -395,13 +418,33 @@ public class LevelFlowManager : MonoBehaviour
         for (int i = 0; i < objectives.Count; i++)
         {
             DishObjective objective = objectives[i];
-            if (objective == null || objective.dish == null || !objective.completed)
+            if (!IsObjectiveSatisfied(objective))
             {
                 return false;
             }
         }
 
         return true;
+    }
+
+    private bool IsObjectiveSatisfied(DishObjective objective)
+    {
+        if (objective == null)
+        {
+            return false;
+        }
+
+        if (objective.completed)
+        {
+            return true;
+        }
+
+        if (objective.dish == null)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void CompleteLevel()
