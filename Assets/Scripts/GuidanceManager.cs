@@ -8,6 +8,9 @@ public class GuidanceManager : MonoBehaviour
     {
         public GameObject ingredient;
         public GameObject slot;
+        [TextArea(2, 4)] public string pickupInstructionText;
+        [TextArea(2, 4)] public string placeInstructionText;
+        [HideInInspector] public string instructionText;
     }
 
     [Header("Recipe Steps In Order")]
@@ -17,8 +20,6 @@ public class GuidanceManager : MonoBehaviour
     [Header("Recipe UI")]
     [SerializeField] private TextMeshProUGUI player1StepText;
     [SerializeField] private TextMeshProUGUI player2StepText;
-    [SerializeField] private string player1Label = "Player 1";
-    [SerializeField] private string player2Label = "Player 2";
 
     private int currentStepP1 = 0;
     private int currentStepP2 = 0;
@@ -142,31 +143,43 @@ public class GuidanceManager : MonoBehaviour
         RecipeStep[] steps = isPlayer1 ? stepsPlayer1 : stepsPlayer2;
         int currentStep = isPlayer1 ? currentStepP1 : currentStepP2;
         bool waitingForDrop = isPlayer1 ? waitingForDropP1 : waitingForDropP2;
-        string label = isPlayer1 ? player1Label : player2Label;
 
-        targetText.text = BuildInstructionText(label, steps, currentStep, waitingForDrop);
+        targetText.text = BuildInstructionText(steps, currentStep, waitingForDrop);
     }
 
-    private string BuildInstructionText(string playerLabel, RecipeStep[] steps, int currentStep, bool waitingForDrop)
+    private string BuildInstructionText(RecipeStep[] steps, int currentStep, bool waitingForDrop)
     {
         if (steps == null || steps.Length == 0)
         {
-            return $"{playerLabel}: no recipe steps configured.";
+            return "no recipe steps configured.";
         }
 
         if (currentStep >= steps.Length)
         {
-            return $"{playerLabel}: recipe completed!";
+            return "recipe completed!";
         }
 
         RecipeStep step = steps[currentStep];
+        string customText = waitingForDrop
+            ? step != null && !string.IsNullOrWhiteSpace(step.placeInstructionText)
+                ? step.placeInstructionText
+                : null
+            : step != null && !string.IsNullOrWhiteSpace(step.pickupInstructionText)
+                ? step.pickupInstructionText
+                : null;
+
+        if (!string.IsNullOrWhiteSpace(customText))
+        {
+            return $"({currentStep + 1}/{steps.Length}): {customText}";
+        }
+
         string ingredientName = step != null && step.ingredient != null ? step.ingredient.name : "ingredient";
         string slotName = step != null && step.slot != null ? step.slot.name : "target slot";
         string action = waitingForDrop
             ? $"Place {ingredientName} on {slotName}."
             : $"Pick up {ingredientName}.";
 
-        return $"{playerLabel} ({currentStep + 1}/{steps.Length}): {action}";
+        return $"({currentStep + 1}/{steps.Length}): {action}";
     }
 
     private void SetHighlight(GameObject obj, bool on)
