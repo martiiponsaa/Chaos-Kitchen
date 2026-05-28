@@ -3157,8 +3157,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5469416ad5d334d9a7945720f24d6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prepCountdownSeconds: 10
-  levelDurationSeconds: 10
+  prepCountdownSeconds: 2
+  levelDurationSeconds: 5
   prepTimer: {fileID: 1688422425}
   levelTimer: {fileID: 165757223}
   players:
@@ -3174,6 +3174,12 @@ MonoBehaviour:
     dish: {fileID: 411280753}
     completed: 0
   reloadDelaySeconds: 5
+  restartAudioMixer: {fileID: 24100000, guid: 7f46ac3e1464ccd42ae71b833abc9b61, type: 2}
+  restartMusicParameter: Music
+  restartFadeImage: {fileID: 1920286064}
+  restartMusicFadeDuration: 5
+  restartImageFadeDuration: 5
+  restartMuteDb: -80
   prepWarningThresholdSeconds: 5
   prepWarningColor: {r: 0.35, g: 0.95, b: 0.35, a: 1}
   prepWarningScaleBoost: 0.12

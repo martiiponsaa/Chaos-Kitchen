@@ -84,6 +84,14 @@ public class LevelFlowManager : MonoBehaviour
     [Header("Failure")]
     [SerializeField] private float reloadDelaySeconds = 7f;
 
+    [Header("Restart Transition")]
+    [SerializeField] private AudioMixer restartAudioMixer;
+    [SerializeField] private string restartMusicParameter = "Music";
+    [SerializeField] private Image restartFadeImage;
+    [SerializeField] private float restartMusicFadeDuration = 2f;
+    [SerializeField] private float restartImageFadeDuration = 2f;
+    [SerializeField] private float restartMuteDb = -80f;
+
     [Header("Warning FX")]
     [SerializeField] private float prepWarningThresholdSeconds = 3f;
     [SerializeField] private Color prepWarningColor = new Color(0.35f, 0.95f, 0.35f, 1f);
@@ -115,6 +123,7 @@ public class LevelFlowManager : MonoBehaviour
     private bool levelActive;
     private bool levelEnded;
     private Coroutine reloadCoroutine;
+    private FirstLevelTransition sceneTransition;
     private readonly TimerWarningState prepTimerWarning = new TimerWarningState();
     private readonly TimerWarningState levelTimerWarning = new TimerWarningState();
 
@@ -138,6 +147,7 @@ public class LevelFlowManager : MonoBehaviour
     private void Start()
     {
         ResolveReferences();
+        ResolveTransitionReferences();
         PrepareInteractionState(true);
         ConfigureTimers();
         StartPrepPhase();
@@ -204,6 +214,44 @@ public class LevelFlowManager : MonoBehaviour
         if (levelTimer == null)
         {
             Debug.LogWarning("LevelFlowManager: level timer not assigned.");
+        }
+    }
+
+    private void ResolveTransitionReferences()
+    {
+        if (sceneTransition == null)
+        {
+            sceneTransition = FindObjectOfType<FirstLevelTransition>();
+        }
+
+        if (sceneTransition == null)
+        {
+            return;
+        }
+
+        if (restartAudioMixer == null)
+        {
+            restartAudioMixer = sceneTransition.audioMixer;
+        }
+
+        if (string.IsNullOrEmpty(restartMusicParameter))
+        {
+            restartMusicParameter = sceneTransition.musicParameter;
+        }
+
+        if (restartFadeImage == null)
+        {
+            restartFadeImage = sceneTransition.fadeImage;
+        }
+
+        if (restartMusicFadeDuration <= 0f)
+        {
+            restartMusicFadeDuration = sceneTransition.musicFadeDuration;
+        }
+
+        if (restartImageFadeDuration <= 0f)
+        {
+            restartImageFadeDuration = sceneTransition.imageFadeDuration;
         }
     }
 
@@ -399,7 +447,7 @@ public class LevelFlowManager : MonoBehaviour
         if (loseSound != null) audioSource.PlayOneShot(loseSound);
         if (loseText != null) loseText.SetActive(true);
 
-        reloadCoroutine = StartCoroutine(ReloadSceneAfterDelay()); //com que aix� es crida si perds ja est� b� que el nivell es reinici. 
+        reloadCoroutine = StartCoroutine(FadeOutAndReloadScene()); // keep the loss transition smooth before the scene restarts.
     }
 
     private void StopTimersAndHide()
@@ -493,6 +541,94 @@ public class LevelFlowManager : MonoBehaviour
         yield return new WaitForSeconds(reloadDelaySeconds);
         Scene currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(currentScene.buildIndex);
+    }
+
+    private IEnumerator FadeOutAndReloadScene()
+    {
+        ResolveTransitionReferences();
+
+        bool musicDone = restartAudioMixer == null || string.IsNullOrEmpty(restartMusicParameter);
+        bool imageDone = restartFadeImage == null;
+
+        if (!musicDone)
+        {
+            StartCoroutine(FadeMusicOutCoroutine(restartMusicFadeDuration, () => musicDone = true));
+        }
+
+        if (!imageDone)
+        {
+            StartCoroutine(FadeImageToBlackCoroutine(restartImageFadeDuration, () => imageDone = true));
+        }
+
+        yield return new WaitUntil(() => musicDone && imageDone);
+
+        float fadeDuration = Mathf.Max(restartMusicFadeDuration, restartImageFadeDuration);
+        float remainingDelay = reloadDelaySeconds - fadeDuration;
+        if (remainingDelay > 0f)
+        {
+            yield return new WaitForSeconds(remainingDelay);
+        }
+
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.buildIndex);
+    }
+
+    private IEnumerator FadeMusicOutCoroutine(float duration, System.Action onComplete)
+    {
+        if (restartAudioMixer == null || string.IsNullOrEmpty(restartMusicParameter))
+        {
+            onComplete?.Invoke();
+            yield break;
+        }
+
+        if (!restartAudioMixer.GetFloat(restartMusicParameter, out float startDb))
+        {
+            startDb = 0f;
+        }
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float f = Mathf.Clamp01(t / duration);
+            float db = Mathf.Lerp(startDb, restartMuteDb, f);
+            restartAudioMixer.SetFloat(restartMusicParameter, db);
+            yield return null;
+        }
+
+        restartAudioMixer.SetFloat(restartMusicParameter, restartMuteDb);
+        onComplete?.Invoke();
+    }
+
+    private IEnumerator FadeImageToBlackCoroutine(float duration, System.Action onComplete)
+    {
+        if (restartFadeImage == null)
+        {
+            onComplete?.Invoke();
+            yield break;
+        }
+
+        Color c = restartFadeImage.color;
+        float startAlpha = c.a;
+
+        if (!restartFadeImage.gameObject.activeSelf)
+        {
+            restartFadeImage.gameObject.SetActive(true);
+        }
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float f = Mathf.Clamp01(t / duration);
+            c.a = Mathf.Lerp(startAlpha, 1f, f);
+            restartFadeImage.color = c;
+            yield return null;
+        }
+
+        c.a = 1f;
+        restartFadeImage.color = c;
+        onComplete?.Invoke();
     }
 
     //funci� per cridar la seguent escena en comptes del mateix per si es guanya. 
