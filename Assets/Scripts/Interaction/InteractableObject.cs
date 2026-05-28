@@ -46,6 +46,8 @@ public class InteractableObject : MonoBehaviour
     public PlayerInteraction GetOwner() => ownerPlayer;
     public void SetOwner(PlayerInteraction p) => ownerPlayer = p;
     public void SetInteractionLocked(bool locked) => interactionLocked = locked;
+        private Vector3 initialSpawnPosition;
+        public Vector3 GetInitialSpawnPosition() => initialSpawnPosition;
 
     protected float GetPickupHeightTolerance() => pickupHeightTolerance;
 
@@ -59,6 +61,7 @@ public class InteractableObject : MonoBehaviour
     private void Start()
     {
         lastValidPosition = transform.position;
+            initialSpawnPosition = transform.position;
     }
 
     private void Update()

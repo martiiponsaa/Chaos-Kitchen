@@ -7284,7 +7284,7 @@ MonoBehaviour:
   cookDuration: 10
   pickupWindow: 10
   burnedDisplayDuration: 5
-  cookedPrefab: {fileID: 5182101408359990397, guid: 1cadb7e9b63d1484db6a657066fdcd48, type: 3}
+  cookedPrefab: {fileID: 5182101408359990397, guid: 7d09872a746719640bcff2b04ca44abc, type: 3}
   burnedPrefab: {fileID: 2592684031479428191, guid: b4922d99395e4624e916e6d3b475a7c2, type: 3}
   cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
   burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}
@@ -8939,7 +8939,7 @@ MonoBehaviour:
   cookDuration: 10
   pickupWindow: 10
   burnedDisplayDuration: 5
-  cookedPrefab: {fileID: 5182101408359990397, guid: 1cadb7e9b63d1484db6a657066fdcd48, type: 3}
+  cookedPrefab: {fileID: 5182101408359990397, guid: 7d09872a746719640bcff2b04ca44abc, type: 3}
   burnedPrefab: {fileID: 2592684031479428191, guid: b4922d99395e4624e916e6d3b475a7c2, type: 3}
   cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
   burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}

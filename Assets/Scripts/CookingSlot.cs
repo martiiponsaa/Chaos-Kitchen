@@ -283,7 +283,10 @@ public class CookingSlot : MonoBehaviour
         if (obj == null) yield break;
 
         DestroyBurnedVisual();
+        obj.transform.position = obj.GetInitialSpawnPosition();
+        slot.isOccupied = false;
         RestoreRawVisual(obj);
+        FindObjectOfType<GuidanceManager>()?.OnIngredientRespawnedAfterBurn(obj.gameObject, obj.GetOwner());
         obj.SetInteractionLocked(false);
         objectBeingCooked = null;
         originalIngredientType = IngredientType.None;

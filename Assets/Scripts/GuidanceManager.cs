@@ -129,6 +129,21 @@ public class GuidanceManager : MonoBehaviour
         }
     }
 
+    public void OnIngredientRespawnedAfterBurn(GameObject respawnedObject, PlayerInteraction player = null)
+    {
+        if (respawnedObject == null) return;
+
+        bool updatedP1 = TryRewindPlayerStep(true, respawnedObject, player);
+        bool updatedP2 = TryRewindPlayerStep(false, respawnedObject, player);
+
+        if (!updatedP1 && !updatedP2)
+        {
+            return;
+        }
+
+        UpdateAllInstructionTexts();
+    }
+
     private void UpdateAllInstructionTexts()
     {
         UpdatePlayerInstructionText(true);
@@ -180,6 +195,60 @@ public class GuidanceManager : MonoBehaviour
             : $"Pick up {ingredientName}.";
 
         return $"({currentStep + 1}/{steps.Length}): {action}";
+    }
+
+    private bool TryRewindPlayerStep(bool isPlayer1, GameObject respawnedObject, PlayerInteraction player)
+    {
+        RecipeStep[] steps = isPlayer1 ? stepsPlayer1 : stepsPlayer2;
+        int currentStep = isPlayer1 ? currentStepP1 : currentStepP2;
+        bool waitingForDrop = isPlayer1 ? waitingForDropP1 : waitingForDropP2;
+
+        if (steps == null || currentStep <= 0 || currentStep > steps.Length)
+        {
+            return false;
+        }
+
+        if (player != null)
+        {
+            if ((isPlayer1 && player != player1) || (!isPlayer1 && player != player2))
+            {
+                return false;
+            }
+        }
+
+        RecipeStep previousStep = steps[currentStep - 1];
+        if (previousStep == null || previousStep.ingredient != respawnedObject)
+        {
+            return false;
+        }
+
+        if (waitingForDrop)
+        {
+            SetHighlightForOwners(steps[currentStep].slot, false);
+        }
+
+        SetHighlightForOwners(steps[currentStep].ingredient, false);
+
+        if (isPlayer1)
+        {
+            currentStepP1 = currentStep - 1;
+            waitingForDropP1 = false;
+            if (currentStepP1 < stepsPlayer1.Length)
+            {
+                SetHighlightForOwners(stepsPlayer1[currentStepP1].ingredient, true);
+            }
+        }
+        else
+        {
+            currentStepP2 = currentStep - 1;
+            waitingForDropP2 = false;
+            if (currentStepP2 < stepsPlayer2.Length)
+            {
+                SetHighlightForOwners(stepsPlayer2[currentStepP2].ingredient, true);
+            }
+        }
+
+        return true;
     }
 
     private void SetHighlight(GameObject obj, bool on)
