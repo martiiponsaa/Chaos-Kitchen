@@ -725,6 +725,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openHand: {fileID: 0}
   closedHand: {fileID: 0}
+  isHandTracking: 0
 --- !u!1001 &101098725
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7739,6 +7740,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openHand: {fileID: 714580150}
   closedHand: {fileID: 599526319}
+  isHandTracking: 0
 --- !u!1001 &1408938910
 PrefabInstance:
   m_ObjectHideFlags: 0

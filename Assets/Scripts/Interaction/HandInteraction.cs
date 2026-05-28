@@ -4,12 +4,15 @@ public class HandInteraction : MonoBehaviour
 {
     [SerializeField] private GameObject openHand;
     [SerializeField] private GameObject closedHand;
+	[SerializeField] private bool isHandTracking;
 
     private void Awake()
     {
         ResolveHandParts();
 
         OpenHand();
+
+		if(isHandTracking) SetUpHand();
     }
 
     private void ResolveHandParts()
@@ -71,4 +74,12 @@ public class HandInteraction : MonoBehaviour
             closedHand.SetActive(true);
         }
     }
+
+	private void SetUpHand()
+	{
+		if (isHandTracking)
+		{
+			transform.localRotation = Quaternion.Euler(90f, -180f, 0f);
+		}
+	}
 }
