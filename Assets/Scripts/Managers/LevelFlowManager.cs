@@ -84,6 +84,10 @@ public class LevelFlowManager : MonoBehaviour
     [Header("Failure")]
     [SerializeField] private float reloadDelaySeconds = 7f;
 
+    [Header("Victory")]
+    [Tooltip("Scene to load after winning this level. Leave empty to stay on the current scene.")]
+    [SerializeField] private string nextVictorySceneName;
+
     [Header("Restart Transition")]
     [SerializeField] private AudioMixer restartAudioMixer;
     [SerializeField] private string restartMusicParameter = "Music";
@@ -463,9 +467,8 @@ public class LevelFlowManager : MonoBehaviour
         Debug.Log("Level complete: all objectives delivered.");
         onLevelCompleted?.Invoke();
 
-        //Per carregar els nivells nous 
         if (reloadCoroutine != null) StopCoroutine(reloadCoroutine);
-        reloadCoroutine = StartCoroutine(LoadNextSceneAfterDelay());
+        reloadCoroutine = StartCoroutine(FadeOutAndLoadSceneAfterDelay(nextVictorySceneName, false));
 
     }
 
@@ -490,7 +493,7 @@ public class LevelFlowManager : MonoBehaviour
         if (loseSound != null) audioSource.PlayOneShot(loseSound);
         if (loseText != null) loseText.SetActive(true);
 
-        reloadCoroutine = StartCoroutine(FadeOutAndReloadScene()); // keep the loss transition smooth before the scene restarts.
+        reloadCoroutine = StartCoroutine(FadeOutAndLoadSceneAfterDelay(string.Empty, true));
     }
 
     private void StopTimersAndHide()
@@ -579,14 +582,7 @@ public class LevelFlowManager : MonoBehaviour
         }
     }
 
-    private IEnumerator ReloadSceneAfterDelay()
-    {
-        yield return new WaitForSeconds(reloadDelaySeconds);
-        Scene currentScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(currentScene.buildIndex);
-    }
-
-    private IEnumerator FadeOutAndReloadScene()
+    private IEnumerator FadeOutAndLoadSceneAfterDelay(string targetSceneName, bool reloadCurrentScene)
     {
         ResolveTransitionReferences();
 
@@ -612,8 +608,19 @@ public class LevelFlowManager : MonoBehaviour
             yield return new WaitForSeconds(remainingDelay);
         }
 
-        Scene currentScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(currentScene.buildIndex);
+        if (reloadCurrentScene)
+        {
+            Scene currentScene = SceneManager.GetActiveScene();
+            SceneManager.LoadScene(currentScene.buildIndex);
+            yield break;
+        }
+
+        if (string.IsNullOrWhiteSpace(targetSceneName))
+        {
+            yield break;
+        }
+
+        SceneManager.LoadScene(targetSceneName);
     }
 
     private IEnumerator FadeMusicOutCoroutine(float duration, System.Action onComplete)
@@ -674,24 +681,4 @@ public class LevelFlowManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    //funci� per cridar la seguent escena en comptes del mateix per si es guanya. 
-    private IEnumerator LoadNextSceneAfterDelay()
-    {
-        yield return new WaitForSeconds(reloadDelaySeconds);
-
-        Scene currentScene = SceneManager.GetActiveScene();
-        int nextSceneIndex = currentScene.buildIndex + 1;
-
-        // Comprovem si hi ha un seg�ent nivell a la llista de Build Settings
-        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
-        {
-            SceneManager.LoadScene(nextSceneIndex);
-        }
-        else
-        {
-            Debug.LogWarning("LevelFlowManager: No hi ha m�s nivells introdu�ts al Build Settings! Tornant al men� o primer nivell.");
-            // Opcional: Aqu� pots carregar l'escena 0 (men� principal) si s'ha acabat el joc:
-            // SceneManager.LoadScene(0);
-        }
-    }
 }

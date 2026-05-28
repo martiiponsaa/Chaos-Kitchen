@@ -3174,6 +3174,7 @@ MonoBehaviour:
     dish: {fileID: 411280753}
     completed: 0
   reloadDelaySeconds: 5
+  nextVictorySceneName: SecondLevel
   restartAudioMixer: {fileID: 24100000, guid: 7f46ac3e1464ccd42ae71b833abc9b61, type: 2}
   restartMusicParameter: Music
   restartFadeImage: {fileID: 1920286064}
