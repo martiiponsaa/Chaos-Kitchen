@@ -2597,7 +2597,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prepCountdownSeconds: 10
-  levelDurationSeconds: 10
+  levelDurationSeconds: 180
   prepTimer: {fileID: 1688422425}
   levelTimer: {fileID: 165757223}
   players:
@@ -6499,6 +6499,25 @@ MonoBehaviour:
   isProcessingSlot: 1
   acceptsIngredient: 4
   producesIngredient: 5
+--- !u!114 &1219050958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1219050954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a64094b14ac36745ad16ee491adbae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cookDuration: 10
+  pickupWindow: 10
+  burnedDisplayDuration: 5
+  burnedPrefab: {fileID: 2174458285976855, guid: ddd9a8f6a0ad5964189e078cf07e5a9f, type: 3}
+  cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
+  burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}
+  sfxMixerGroup: {fileID: 0}
 --- !u!1 &1232370072
 GameObject:
   m_ObjectHideFlags: 0
@@ -12776,6 +12795,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2960359685258275440, guid: c33b4d5a5496fe742a54e956c9bd07ee, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1219050956}
+    - targetCorrespondingSourceObject: {fileID: 2960359685258275440, guid: c33b4d5a5496fe742a54e956c9bd07ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1219050958}
   m_SourcePrefab: {fileID: 100100000, guid: c33b4d5a5496fe742a54e956c9bd07ee, type: 3}
 --- !u!1001 &1971606340
 PrefabInstance:

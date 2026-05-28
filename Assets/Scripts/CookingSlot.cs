@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.Audio;
 
 [RequireComponent(typeof(PlacementSlot))]
 public class CookingSlot : MonoBehaviour
@@ -21,7 +22,8 @@ public class CookingSlot : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioClip cookedClip;
     [SerializeField] private AudioClip burntClip;
-    private AudioSource audioSource;
+    [SerializeField] private AudioMixerGroup sfxMixerGroup; 
+    private AudioSource audioSource; //AUDIO MIXER
 
     // ── Internal state ────────────────────────────────────────────────
     private PlacementSlot slot;
@@ -36,6 +38,7 @@ public class CookingSlot : MonoBehaviour
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.spatialBlend = 1f;
         audioSource.playOnAwake = false;
+        audioSource.outputAudioMixerGroup = sfxMixerGroup;
     }
 
     // ── Public API called by PlacementSlot.OnObjectPlaced ────────────
