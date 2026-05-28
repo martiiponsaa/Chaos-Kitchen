@@ -78,7 +78,17 @@ public class PlacementSlot : MonoBehaviour
             if (cur == acceptsIngredient)
             {
                 // Transform immediately (simple cooking placeholder)
-                if (producesIngredient != IngredientType.None)
+                //if (producesIngredient != IngredientType.None)
+                //{
+                //    obj.SetIngredientType(producesIngredient);
+                //    Debug.Log($"Processed {cur} -> {producesIngredient} on slot {name}");
+                //}
+                var cookingSlot = GetComponent<CookingSlot>();
+                if (cookingSlot != null)
+                {
+                    cookingSlot.StartCooking(obj);
+                }
+                else if (producesIngredient != IngredientType.None)
                 {
                     obj.SetIngredientType(producesIngredient);
                     Debug.Log($"Processed {cur} -> {producesIngredient} on slot {name}");
