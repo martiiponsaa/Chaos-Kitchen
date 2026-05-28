@@ -299,27 +299,41 @@ public class InteractableObject : MonoBehaviour
     /// </summary>
     public virtual bool CanBePickedUp(Vector3 playerPos, PlayerInteraction player = null)
     {
-        // Pickup when player's height matches the object's height within a small tolerance
+        // 1. Comprovació d'alçada bàsica (es manté intacta)
         bool heightOk = Mathf.Abs(playerPos.y - transform.position.y) <= pickupHeightTolerance;
         if (!heightOk) return false;
 
-        // If this object has an assigned owner, only that player may pick it up
-        if (GetOwner() != null && GetOwner() != player) return false;
+        // 2. DETECTAR EL NIVELL I BLOCAR DE MANERA ABSOLUTA
+        string escenaActual = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
-        // If this object is an ingredient, only allow pickup if there is at least one Dish
-        // that can accept this ingredient now. If no dishes exist yet, allow pickup anyway.
+        // Només apliquem el bloqueig invers si estem jugant al Nivell 2 ("FirstLevel 1")
+        if (escenaActual == "FirstLevel 1")
+        {
+            if (GetComponent<PassableIngredient>() != null && ownerPlayer != null)
+            {
+                // SI SÓC L'AMO FINAL: No em deixis agafar l'ingredient sota cap concepte!
+                // Retornem false directament tallant la funció perquè no llegeixi les receptes de sota.
+                if (ownerPlayer == player)
+                {
+                    return false;
+                }
+
+                // SI SÓC EL TRANSPORTADOR (L'altre jugador): El deixem agafar lliurement
+                return true;
+            }
+        }
+
+        // 3. LÒGICA NORMAL DEL JOC (Per al Nivell 1 i altres objectes comuns)
+        if (ownerPlayer != null && ownerPlayer != player) return false;
+
         if (ingredientType != IngredientType.None)
         {
             Dish[] dishes = FindObjectsByType<Dish>(FindObjectsSortMode.None);
-
-            // If no dish exists, allow pickup (developer choice)
             if (dishes.Length == 0) return true;
 
-            // If any dish currently accepts this ingredient and it's assigned to this player or its slot is assigned, allow pickup
             foreach (var d in dishes)
             {
                 if (d == null) continue;
-                // Consider dish only if it's assigned to the player or linked to a slot assigned to the player
                 bool dishForPlayer = false;
                 if (d.GetAssignedPlayer() != null)
                 {
@@ -327,7 +341,6 @@ public class InteractableObject : MonoBehaviour
                 }
                 else
                 {
-                    // check if any slot links to this dish and is assigned to the player
                     foreach (var s in PlacementSlot.all)
                     {
                         if (s == null) continue;
@@ -340,30 +353,21 @@ public class InteractableObject : MonoBehaviour
                 }
 
                 if (!dishForPlayer) continue;
-
                 if (d.CanAccept(ingredientType)) return true;
             }
 
-            // No dish currently accepts this raw ingredient. Allow pickup if there is
-            // a processing slot (e.g., pan) that can transform this ingredient into
-            // a type that is currently accepted by any dish. This lets players pick
-            // up raw `Meat` when a dish expects `CookedMeat` and there is a pan.
             var slots = FindObjectsByType<PlacementSlot>(FindObjectsSortMode.None);
             foreach (var s in slots)
             {
                 if (s == null) continue;
                 if (!s.isProcessingSlot) continue;
                 if (s.acceptsIngredient != ingredientType) continue;
-                // If this processing slot produces a type that some dish accepts now,
-                // allow pickup so player can place it into the processor.
                 if (s.producesIngredient == IngredientType.None) continue;
-                // Only consider processing slots assigned to this player (or unassigned)
                 if (s.assignedPlayer != null && s.assignedPlayer != player) continue;
 
                 foreach (var d2 in dishes)
                 {
                     if (d2 == null) continue;
-                    // filter dishes to those relevant to this player
                     bool dishForPlayer = false;
                     if (d2.GetAssignedPlayer() != null)
                     {
@@ -383,12 +387,9 @@ public class InteractableObject : MonoBehaviour
                     }
 
                     if (!dishForPlayer) continue;
-
                     if (d2.CanAccept(s.producesIngredient)) return true;
                 }
             }
-
-            // Not acceptable and no processing path to required type
             return false;
         }
 
