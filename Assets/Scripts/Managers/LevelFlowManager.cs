@@ -4,10 +4,61 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
 
 public class LevelFlowManager : MonoBehaviour
 {
     public static LevelFlowManager Instance { get; private set; }
+
+    private class TimerWarningState
+    {
+        public Graphic graphic;
+        public RectTransform rectTransform;
+        public Vector2 baseAnchoredPosition;
+        public Vector3 baseScale;
+        public Color baseColor;
+        public bool captured;
+
+        public void Capture(Graphic targetGraphic)
+        {
+            if (targetGraphic == null)
+            {
+                return;
+            }
+
+            graphic = targetGraphic;
+            rectTransform = targetGraphic.rectTransform;
+            baseColor = targetGraphic.color;
+
+            if (rectTransform != null)
+            {
+                baseAnchoredPosition = rectTransform.anchoredPosition;
+                baseScale = rectTransform.localScale;
+            }
+
+            captured = true;
+        }
+
+        public void Reset()
+        {
+            if (!captured)
+            {
+                return;
+            }
+
+            if (graphic != null)
+            {
+                graphic.color = baseColor;
+            }
+
+            if (rectTransform != null)
+            {
+                rectTransform.anchoredPosition = baseAnchoredPosition;
+                rectTransform.localScale = baseScale;
+            }
+        }
+    }
 
     [System.Serializable]
     public class DishObjective
@@ -33,6 +84,18 @@ public class LevelFlowManager : MonoBehaviour
     [Header("Failure")]
     [SerializeField] private float reloadDelaySeconds = 7f;
 
+    [Header("Warning FX")]
+    [SerializeField] private float prepWarningThresholdSeconds = 3f;
+    [SerializeField] private Color prepWarningColor = new Color(0.35f, 0.95f, 0.35f, 1f);
+    [SerializeField] private float prepWarningScaleBoost = 0.18f;
+    [SerializeField] private float prepWarningShake = 4f;
+    [SerializeField] private float prepWarningPulseSpeed = 4f;
+    [SerializeField] private float failWarningThresholdSeconds = 3f;
+    [SerializeField] private Color failWarningColor = new Color(1f, 0.2f, 0.2f, 1f);
+    [SerializeField] private float failWarningScaleBoost = 0.3f;
+    [SerializeField] private float failWarningShake = 8f;
+    [SerializeField] private float failWarningPulseSpeed = 8f;
+
     [Header("Events")]
     [SerializeField] private UnityEvent onLevelStarted;
     [SerializeField] private UnityEvent onLevelCompleted;
@@ -52,6 +115,8 @@ public class LevelFlowManager : MonoBehaviour
     private bool levelActive;
     private bool levelEnded;
     private Coroutine reloadCoroutine;
+    private readonly TimerWarningState prepTimerWarning = new TimerWarningState();
+    private readonly TimerWarningState levelTimerWarning = new TimerWarningState();
 
     private void Awake()
     {
@@ -76,6 +141,19 @@ public class LevelFlowManager : MonoBehaviour
         PrepareInteractionState(true);
         ConfigureTimers();
         StartPrepPhase();
+    }
+
+    private void Update()
+    {
+        if (levelEnded)
+        {
+            ResetTimerWarning(prepTimerWarning);
+            ResetTimerWarning(levelTimerWarning);
+            return;
+        }
+
+        UpdateTimerWarning(prepTimer, prepWarningThresholdSeconds, prepWarningColor, prepWarningScaleBoost, prepWarningShake, prepWarningPulseSpeed, prepTimerWarning);
+        UpdateTimerWarning(levelTimer, failWarningThresholdSeconds, failWarningColor, failWarningScaleBoost, failWarningShake, failWarningPulseSpeed, levelTimerWarning);
     }
 
     private void OnDestroy()
@@ -189,6 +267,8 @@ public class LevelFlowManager : MonoBehaviour
             prepTimer.StopTimer();
             prepTimer.gameObject.SetActive(false);
         }
+
+        ResetTimerWarning(prepTimerWarning);
 
         PrepareInteractionState(false);
 
@@ -330,11 +410,67 @@ public class LevelFlowManager : MonoBehaviour
             prepTimer.gameObject.SetActive(false);
         }
 
+        ResetTimerWarning(prepTimerWarning);
+
         if (levelTimer != null)
         {
             levelTimer.StopTimer();
             levelTimer.gameObject.SetActive(false);
         }
+
+        ResetTimerWarning(levelTimerWarning);
+    }
+
+    private void UpdateTimerWarning(Timer timer, float thresholdSeconds, Color warningColor, float scaleBoost, float shakeAmount, float pulseSpeed, TimerWarningState warningState)
+    {
+        if (timer == null || !timer.gameObject.activeInHierarchy || timer.countMethod != Timer.CountMethod.CountDown)
+        {
+            ResetTimerWarning(warningState);
+            return;
+        }
+
+        Graphic targetGraphic = timer.textMeshProText != null ? timer.textMeshProText : timer.standardText;
+        if (targetGraphic == null)
+        {
+            ResetTimerWarning(warningState);
+            return;
+        }
+
+        float remainingSeconds = (float)timer.GetRemainingSeconds();
+        if (remainingSeconds <= 0f || remainingSeconds > thresholdSeconds)
+        {
+            ResetTimerWarning(warningState);
+            return;
+        }
+
+        if (!warningState.captured || warningState.graphic != targetGraphic)
+        {
+            warningState.Capture(targetGraphic);
+        }
+
+        if (warningState.rectTransform == null)
+        {
+            return;
+        }
+
+        float intensity = 1f - Mathf.Clamp01(remainingSeconds / thresholdSeconds);
+        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * pulseSpeed * Mathf.PI * 2f);
+        float scale = 1f + (scaleBoost * intensity * pulse);
+        Vector2 shakeOffset = Random.insideUnitCircle * (shakeAmount * intensity * pulse);
+
+        warningState.graphic.color = Color.Lerp(warningState.baseColor, warningColor, intensity);
+        warningState.rectTransform.anchoredPosition = warningState.baseAnchoredPosition + shakeOffset;
+        warningState.rectTransform.localScale = warningState.baseScale * scale;
+    }
+
+    private void ResetTimerWarning(TimerWarningState warningState)
+    {
+        if (warningState == null || !warningState.captured)
+        {
+            return;
+        }
+
+        warningState.Reset();
     }
 
     private void PrepareInteractionState(bool locked)

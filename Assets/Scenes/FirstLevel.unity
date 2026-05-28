@@ -2595,8 +2595,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5469416ad5d334d9a7945720f24d6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prepCountdownSeconds: 1
-  levelDurationSeconds: 100
+  prepCountdownSeconds: 10
+  levelDurationSeconds: 10
   prepTimer: {fileID: 1688422425}
   levelTimer: {fileID: 165757223}
   players:
@@ -2608,6 +2608,16 @@ MonoBehaviour:
     dish: {fileID: 1623814447}
     completed: 0
   reloadDelaySeconds: 5
+  prepWarningThresholdSeconds: 5
+  prepWarningColor: {r: 0.35, g: 0.95, b: 0.35, a: 1}
+  prepWarningScaleBoost: 0.12
+  prepWarningShake: 2
+  prepWarningPulseSpeed: 4
+  failWarningThresholdSeconds: 5
+  failWarningColor: {r: 1, g: 0.2, b: 0.2, a: 1}
+  failWarningScaleBoost: 0.2
+  failWarningShake: 5
+  failWarningPulseSpeed: 8
   onLevelStarted:
     m_PersistentCalls:
       m_Calls: []

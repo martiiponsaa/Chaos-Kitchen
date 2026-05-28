@@ -10,6 +10,55 @@ public class StartAreaManager : MonoBehaviour
     public static StartAreaManager Instance { get; private set; }
     public static bool HasInstance => Instance != null;
 
+    private class TimerWarningState
+    {
+        public Graphic graphic;
+        public RectTransform rectTransform;
+        public Vector2 baseAnchoredPosition;
+        public Vector3 baseScale;
+        public Color baseColor;
+        public bool captured;
+
+        public void Capture(Graphic targetGraphic)
+        {
+            if (targetGraphic == null)
+            {
+                return;
+            }
+
+            graphic = targetGraphic;
+            rectTransform = targetGraphic.rectTransform;
+            baseColor = targetGraphic.color;
+
+            if (rectTransform != null)
+            {
+                baseAnchoredPosition = rectTransform.anchoredPosition;
+                baseScale = rectTransform.localScale;
+            }
+
+            captured = true;
+        }
+
+        public void Reset()
+        {
+            if (!captured)
+            {
+                return;
+            }
+
+            if (graphic != null)
+            {
+                graphic.color = baseColor;
+            }
+
+            if (rectTransform != null)
+            {
+                rectTransform.anchoredPosition = baseAnchoredPosition;
+                rectTransform.localScale = baseScale;
+            }
+        }
+    }
+
     [Tooltip("Seconds both areas must be occupied simultaneously to trigger start.")]
     public float requiredHoldTime = 3f;
 
@@ -31,6 +80,20 @@ public class StartAreaManager : MonoBehaviour
     [Tooltip("Seconds to fade music to mute")] public float musicFadeDuration = 2f;
     [Tooltip("Minimum dB value to treat as silent (e.g. -80 dB)")]
     public float muteDb = -80f;
+
+    [Header("Countdown Warning FX")]
+    [Tooltip("Seconds before the start countdown ends where the warning effect activates.")]
+    public float warningThresholdSeconds = 3f;
+    [Tooltip("Green warning color used for the start countdown text.")]
+    public Color warningColor = new Color(0.35f, 0.95f, 0.35f, 1f);
+    [Tooltip("How much the countdown text scales during the warning effect.")]
+    public float warningScaleBoost = 0.18f;
+    [Tooltip("How much the countdown text jitters during the warning effect.")]
+    public float warningShake = 4f;
+    [Tooltip("Pulse speed of the warning effect.")]
+    public float warningPulseSpeed = 4f;
+
+    private readonly TimerWarningState warningState = new TimerWarningState();
 
     void Awake()
     {
@@ -90,6 +153,8 @@ public class StartAreaManager : MonoBehaviour
         if (_started) return;
         if (_areas.Count == 0) return;
 
+        UpdateWarningEffect();
+
         bool allOccupied = true;
         foreach (var a in _areas)
         {
@@ -118,6 +183,8 @@ public class StartAreaManager : MonoBehaviour
         }
         else
         {
+            ResetWarningEffect();
+
             if (_countdownCoroutine != null)
             {
                 StopCoroutine(_countdownCoroutine);
@@ -154,6 +221,7 @@ public class StartAreaManager : MonoBehaviour
             }
         }
 
+        ResetWarningEffect();
         _started = true;
         _countdownCoroutine = null;
         Debug.Log($"Start areas occupied for {requiredHoldTime} seconds. Start confirmed.");
@@ -169,6 +237,58 @@ public class StartAreaManager : MonoBehaviour
 
         // Begin fading music and screen, then load next scene when complete
         StartCoroutine(FadeAndLoadFirstLevel());
+    }
+
+    private void UpdateWarningEffect()
+    {
+        if (levelTimer == null || !levelTimer.gameObject.activeInHierarchy || levelTimer.countMethod != Timer.CountMethod.CountDown)
+        {
+            ResetWarningEffect();
+            return;
+        }
+
+        Graphic targetGraphic = levelTimer.textMeshProText != null ? levelTimer.textMeshProText : levelTimer.standardText;
+        if (targetGraphic == null)
+        {
+            ResetWarningEffect();
+            return;
+        }
+
+        float remainingSeconds = (float)levelTimer.GetRemainingSeconds();
+        if (remainingSeconds <= 0f || remainingSeconds > warningThresholdSeconds)
+        {
+            ResetWarningEffect();
+            return;
+        }
+
+        if (!warningState.captured || warningState.graphic != targetGraphic)
+        {
+            warningState.Capture(targetGraphic);
+        }
+
+        if (warningState.rectTransform == null)
+        {
+            return;
+        }
+
+        float intensity = 1f - Mathf.Clamp01(remainingSeconds / warningThresholdSeconds);
+        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * warningPulseSpeed * Mathf.PI * 2f);
+        float scale = 1f + (warningScaleBoost * intensity * pulse);
+        Vector2 shakeOffset = Random.insideUnitCircle * (warningShake * intensity * pulse);
+
+        warningState.graphic.color = Color.Lerp(warningState.baseColor, warningColor, intensity);
+        warningState.rectTransform.anchoredPosition = warningState.baseAnchoredPosition + shakeOffset;
+        warningState.rectTransform.localScale = warningState.baseScale * scale;
+    }
+
+    private void ResetWarningEffect()
+    {
+        if (!warningState.captured)
+        {
+            return;
+        }
+
+        warningState.Reset();
     }
 
     System.Collections.IEnumerator FadeAndLoadFirstLevel()
