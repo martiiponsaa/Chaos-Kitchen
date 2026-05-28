@@ -7546,6 +7546,7 @@ MonoBehaviour:
   pickupWindow: 10
   burnedDisplayDuration: 5
   burnedPrefab: {fileID: 2174458285976855, guid: ddd9a8f6a0ad5964189e078cf07e5a9f, type: 3}
+  cookedPrefab: {fileID: 5182101408359990397, guid: 1cadb7e9b63d1484db6a657066fdcd48, type: 3}
   cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
   burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}
   sfxMixerGroup: {fileID: 0}
@@ -9278,6 +9279,7 @@ MonoBehaviour:
   pickupWindow: 10
   burnedDisplayDuration: 5
   burnedPrefab: {fileID: 2174458285976855, guid: ddd9a8f6a0ad5964189e078cf07e5a9f, type: 3}
+  cookedPrefab: {fileID: 5182101408359990397, guid: 1cadb7e9b63d1484db6a657066fdcd48, type: 3}
   cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
   burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}
   sfxMixerGroup: {fileID: 0}

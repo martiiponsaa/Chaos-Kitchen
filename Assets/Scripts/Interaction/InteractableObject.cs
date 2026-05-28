@@ -36,6 +36,8 @@ public class InteractableObject : MonoBehaviour
     [SerializeField] private IngredientType ingredientType = IngredientType.None;
     [Tooltip("Assign this object to a specific player (optional). If set, only that player may pick/place it.")]
     [SerializeField] private PlayerInteraction ownerPlayer = null;
+    [Tooltip("When enabled, the object cannot be picked up until gameplay unlocks it.")]
+    [SerializeField] private bool interactionLocked = false;
 
     // Public getter and setter to allow processing slots to transform ingredients (e.g., cook meat -> cooked meat)
     public IngredientType GetIngredientType() => ingredientType;
@@ -43,6 +45,7 @@ public class InteractableObject : MonoBehaviour
 
     public PlayerInteraction GetOwner() => ownerPlayer;
     public void SetOwner(PlayerInteraction p) => ownerPlayer = p;
+    public void SetInteractionLocked(bool locked) => interactionLocked = locked;
 
     protected float GetPickupHeightTolerance() => pickupHeightTolerance;
 
@@ -72,7 +75,7 @@ public class InteractableObject : MonoBehaviour
     /// </summary>
     public void PickUp(PlayerInteraction player)
     {
-        if (isHeld) return;
+        if (isHeld || interactionLocked) return;
 
         isHeld = true;
         currentHolder = player;
@@ -299,6 +302,8 @@ public class InteractableObject : MonoBehaviour
     /// </summary>
     public virtual bool CanBePickedUp(Vector3 playerPos, PlayerInteraction player = null)
     {
+        if (interactionLocked) return false;
+
         // 1. Comprovació d'alçada bàsica (es manté intacta)
         bool heightOk = Mathf.Abs(playerPos.y - transform.position.y) <= pickupHeightTolerance;
         if (!heightOk) return false;

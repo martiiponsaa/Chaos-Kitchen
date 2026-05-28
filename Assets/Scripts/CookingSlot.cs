@@ -16,6 +16,9 @@ public class CookingSlot : MonoBehaviour
     public float burnedDisplayDuration = 5f;
 
     [Header("Visuals")]
+    [Tooltip("Prefab shown while the ingredient is cooked and waiting to be picked up.")]
+    public GameObject cookedPrefab;
+
     [Tooltip("Prefab spawned at the slot position when the ingredient burns.")]
     public GameObject burnedPrefab;
 
@@ -29,6 +32,10 @@ public class CookingSlot : MonoBehaviour
     private PlacementSlot slot;
     private InteractableObject objectBeingCooked;
     private Coroutine activeSequence;
+    private Renderer[] originalRenderers;
+    private GameObject cookedVisualInstance;
+    private GameObject burnedVisualInstance;
+    private IngredientType originalIngredientType = IngredientType.None;
 
     // ─────────────────────────────────────────────────────────────────
 
@@ -55,6 +62,12 @@ public class CookingSlot : MonoBehaviour
         StopActiveSequence();
 
         objectBeingCooked = obj;
+        originalIngredientType = obj.GetIngredientType();
+        CacheOriginalRenderers(obj);
+        DestroyCookedVisual();
+        DestroyBurnedVisual();
+        SetOriginalVisualVisible(true);
+        obj.SetInteractionLocked(true);
         activeSequence = StartCoroutine(CookingSequence(obj));
     }
 
@@ -83,6 +96,7 @@ public class CookingSlot : MonoBehaviour
         if (!IsStillOnSlot(obj))
         {
             activeSequence = null;
+            objectBeingCooked = null;
             yield break;
         }
 
@@ -92,6 +106,9 @@ public class CookingSlot : MonoBehaviour
         {
             obj.SetIngredientType(cookedType);
         }
+
+        ApplyCookedVisual(obj);
+        obj.SetInteractionLocked(false);
 
         Debug.Log($"[CookingSlot] {obj.name} is ready ({cookedType}). Pickup window: {pickupWindow}s.");
         if (cookedClip != null) audioSource.PlayOneShot(cookedClip);
@@ -106,6 +123,7 @@ public class CookingSlot : MonoBehaviour
                 Debug.Log($"[CookingSlot] Ingredient picked up in time on {name}.");
                 activeSequence = null;
                 objectBeingCooked = null;
+                originalIngredientType = IngredientType.None;
                 yield break;
             }
 
@@ -119,9 +137,11 @@ public class CookingSlot : MonoBehaviour
             // Picked up on the very last frame — still counts as success
             activeSequence = null;
             objectBeingCooked = null;
+            originalIngredientType = IngredientType.None;
             yield break;
         }
 
+        obj.SetInteractionLocked(true);
         yield return StartCoroutine(AutomaticBurnAndResetSequence(obj));
         //if (burntClip != null) audioSource.PlayOneShot(burntClip);
     }
@@ -142,6 +162,75 @@ public class CookingSlot : MonoBehaviour
         if (!slot.isOccupied) return false;
 
         return true;
+    }
+
+    private void CacheOriginalRenderers(InteractableObject obj)
+    {
+        if (obj == null) return;
+        originalRenderers = obj.GetComponentsInChildren<Renderer>(true);
+    }
+
+    private void SetOriginalVisualVisible(bool visible)
+    {
+        if (originalRenderers == null) return;
+
+        for (int i = 0; i < originalRenderers.Length; i++)
+        {
+            Renderer renderer = originalRenderers[i];
+            if (renderer != null)
+            {
+                renderer.enabled = visible;
+            }
+        }
+    }
+
+    private void DestroyCookedVisual()
+    {
+        if (cookedVisualInstance != null)
+        {
+            Destroy(cookedVisualInstance);
+            cookedVisualInstance = null;
+        }
+    }
+
+    private void DestroyBurnedVisual()
+    {
+        if (burnedVisualInstance != null)
+        {
+            Destroy(burnedVisualInstance);
+            burnedVisualInstance = null;
+        }
+    }
+
+    private void ApplyCookedVisual(InteractableObject obj)
+    {
+        DestroyBurnedVisual();
+
+        if (cookedPrefab == null || obj == null)
+        {
+            SetOriginalVisualVisible(true);
+            return;
+        }
+
+        DestroyCookedVisual();
+        SetOriginalVisualVisible(false);
+
+        Vector3 prefabScale = cookedPrefab.transform.localScale;
+        cookedVisualInstance = Instantiate(cookedPrefab, obj.transform);
+        cookedVisualInstance.transform.localPosition = Vector3.zero;
+        cookedVisualInstance.transform.localRotation = Quaternion.identity;
+        cookedVisualInstance.transform.localScale = prefabScale;
+    }
+
+    private void RestoreRawVisual(InteractableObject obj)
+    {
+        DestroyCookedVisual();
+        SetOriginalVisualVisible(true);
+
+        if (obj != null && originalIngredientType != IngredientType.None)
+        {
+            obj.SetIngredientType(originalIngredientType);
+        }
     }
 
     private void BurnIngredient(InteractableObject obj)
@@ -177,54 +266,29 @@ public class CookingSlot : MonoBehaviour
     }
     private IEnumerator AutomaticBurnAndResetSequence(InteractableObject obj)
     {
-        Debug.Log($"[CookingSlot] {obj.name} es crema! Amagant original i mostrant visual de cremat durant {burnedDisplayDuration}s.");
+        Debug.Log($"[CookingSlot] {obj.name} burned on {name}! Showing burn visual for {burnedDisplayDuration}s.");
 
-        // 1. TROBEM I AMAGUEM EL VISUAL DE L'HAMBURGUESA ORIGINAL
-        // Busquem el MeshRenderer en el mateix objecte o en els seus fills (models 3D)
-        MeshRenderer originalMesh = obj.GetComponentInChildren<MeshRenderer>();
-        if (originalMesh != null)
-        {
-            originalMesh.enabled = false; // La fem invisible temporalment
-        }
+        DestroyCookedVisual();
+        SetOriginalVisualVisible(false);
 
-        // 2. INSTANCIEM EL PREFAB DE L'HAMBURGUESA NEGRA / FUM
-        GameObject burnedVisual = null;
         if (burnedPrefab != null)
         {
-            Vector3 spawnPos = slot.GetPosition(); // Pots posar un petit offset si cal: + new Vector3(0, 0.01f, 0);
-            burnedVisual = Instantiate(burnedPrefab, spawnPos, Quaternion.identity);
-            Destroy(burnedVisual, burnedDisplayDuration); // Es destrueix sol als 5s
+            Vector3 spawnPos = slot.GetPosition();
+            burnedVisualInstance = Instantiate(burnedPrefab, spawnPos, Quaternion.identity);
             if (burntClip != null) audioSource.PlayOneShot(burntClip);
         }
 
-        // 3. BLOQUEJEM EL SLOT (Evita que el jugador interactuï mentre està "invisible/cremada")
-        slot.isOccupied = false;
-
-        // 4. ESPEREM ELS 5 SEGONS DE PENALITZACIÓ
         yield return new WaitForSeconds(burnedDisplayDuration);
 
-        // Seguretat: Si el jugador ha tret l'objecte o reiniciat el nivell mentrestant, sortim
         if (obj == null) yield break;
 
-        // 5. TORNEM A MOSTRAR L'HAMBURGUESA ORIGINAL (Ara ja es veurà la bona)
-        if (originalMesh != null)
-        {
-            originalMesh.enabled = true; // Torna a ser visible!
-        }
+        DestroyBurnedVisual();
+        RestoreRawVisual(obj);
+        obj.SetInteractionLocked(false);
+        objectBeingCooked = null;
+        originalIngredientType = IngredientType.None;
 
-        // 6. REINICI DE LÒGICA I RE-ACTIVACIÓ DEL SLOT
-        slot.isOccupied = true;
-        objectBeingCooked = obj;
-
-        // Forcem que l'hamburguesa sigui del tipus Cuita (CookedMeat) perquè el plat l'accepti a l'instant
-        IngredientType cookedType = slot.producesIngredient;
-        if (cookedType != IngredientType.None)
-        {
-            obj.SetIngredientType(cookedType);
-        }
-
-        // Deixem la seqüència activa en null per finalitzar el procés
         activeSequence = null;
-        Debug.Log($"[CookingSlot] El fum s'ha apagat. {obj.name} torna a ser visible i llista per recollir!");
+        Debug.Log($"[CookingSlot] Burn finished on {name}. {obj.name} has been restored to raw state.");
     }
 }
