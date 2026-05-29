@@ -25,6 +25,7 @@ public class CookingSlot : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioClip cookedClip;
     [SerializeField] private AudioClip burntClip;
+    [SerializeField] private AudioClip cooking;                 // clip to play while cooking (loop)
     [SerializeField] private AudioMixerGroup sfxMixerGroup; 
     private AudioSource audioSource; //AUDIO MIXER
 

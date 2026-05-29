@@ -2748,9 +2748,10 @@ MonoBehaviour:
   burnedDisplayDuration: 5
   cookedPrefab: {fileID: 0}
   burnedPrefab: {fileID: 0}
-  cookedClip: {fileID: 0}
-  burntClip: {fileID: 0}
-  sfxMixerGroup: {fileID: 0}
+  cookedClip: {fileID: 8300000, guid: 42172705ac516094fb287d920101efcd, type: 3}
+  burntClip: {fileID: 8300000, guid: 16d80c2054d0f274aa38719340cb5ab0, type: 3}
+  cooking: {fileID: 8300000, guid: 5919c69c43d68d44db2b891d6d933ce6, type: 3}
+  sfxMixerGroup: {fileID: 4284510829063109932, guid: 7f46ac3e1464ccd42ae71b833abc9b61, type: 2}
 --- !u!114 &430905717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7756,6 +7757,7 @@ MonoBehaviour:
   burnedPrefab: {fileID: 2592684031479428191, guid: b4922d99395e4624e916e6d3b475a7c2, type: 3}
   cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
   burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}
+  cooking: {fileID: 8300000, guid: 87284a2c4714eca40b9e9189b1f02dbb, type: 3}
   sfxMixerGroup: {fileID: 4284510829063109932, guid: 7f46ac3e1464ccd42ae71b833abc9b61, type: 2}
 --- !u!1 &1232370072
 GameObject:
@@ -9436,6 +9438,7 @@ MonoBehaviour:
   burnedPrefab: {fileID: 2592684031479428191, guid: b4922d99395e4624e916e6d3b475a7c2, type: 3}
   cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
   burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}
+  cooking: {fileID: 0}
   sfxMixerGroup: {fileID: 4284510829063109932, guid: 7f46ac3e1464ccd42ae71b833abc9b61, type: 2}
 --- !u!114 &1459337576
 MonoBehaviour:
