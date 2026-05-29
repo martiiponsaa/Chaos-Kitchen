@@ -2529,7 +2529,7 @@ MonoBehaviour:
     m_Bits: 0
   slotSnapDistance: 5
   pickupYThreshold: 0.2
-  pickupHeightTolerance: 0.15
+  pickupHeightTolerance: 0.8
   ingredientType: 0
   ownerPlayer: {fileID: 1905373658}
   passableIngredient: 0
@@ -4810,7 +4810,7 @@ PrefabInstance:
       objectReference: {fileID: 1905373658}
     - target: {fileID: 70991608207259141, guid: 6e5c7ad06bf4569488fd0409d9def1fe, type: 3}
       propertyPath: passableIngredient
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 70991608207259141, guid: 6e5c7ad06bf4569488fd0409d9def1fe, type: 3}
       propertyPath: pickupHeightTolerance
@@ -4830,7 +4830,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5120537591569502159, guid: 6e5c7ad06bf4569488fd0409d9def1fe, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -9.2
+      value: 28.8
       objectReference: {fileID: 0}
     - target: {fileID: 5120537591569502159, guid: 6e5c7ad06bf4569488fd0409d9def1fe, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7883,7 +7883,7 @@ MonoBehaviour:
     m_Bits: 0
   slotSnapDistance: 5
   pickupYThreshold: 0.2
-  pickupHeightTolerance: 0.15
+  pickupHeightTolerance: 0.8
   ingredientType: 0
   ownerPlayer: {fileID: 2025534041}
   passableIngredient: 0
@@ -9555,7 +9555,7 @@ MonoBehaviour:
     m_Bits: 0
   slotSnapDistance: 5
   pickupYThreshold: 0.2
-  pickupHeightTolerance: 0.15
+  pickupHeightTolerance: 0.8
   ingredientType: 0
   ownerPlayer: {fileID: 1905373658}
   passableIngredient: 0
@@ -10995,7 +10995,7 @@ MonoBehaviour:
     m_Bits: 0
   slotSnapDistance: 5
   pickupYThreshold: 0.2
-  pickupHeightTolerance: 0.15
+  pickupHeightTolerance: 0.8
   ingredientType: 0
   ownerPlayer: {fileID: 2025534041}
   passableIngredient: 0
@@ -15732,7 +15732,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 376861461741556399, guid: c35f5de006b30d340a8d5423668a7509, type: 3}
       propertyPath: placementYThreshold
-      value: 0.8
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 376861461741556399, guid: c35f5de006b30d340a8d5423668a7509, type: 3}
       propertyPath: pickupHeightTolerance
@@ -15809,7 +15809,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1723289821521723829, guid: 8ca0b4df869b5fd42a0c3c074d29fccc, type: 3}
       propertyPath: placementYThreshold
-      value: 0.8
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 1723289821521723829, guid: 8ca0b4df869b5fd42a0c3c074d29fccc, type: 3}
       propertyPath: pickupHeightTolerance
@@ -15890,7 +15890,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6811798210195108575, guid: 3526ca17141fb3d49a2a4e4dd6b1699a, type: 3}
       propertyPath: placementYThreshold
-      value: 0.8
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 6811798210195108575, guid: 3526ca17141fb3d49a2a4e4dd6b1699a, type: 3}
       propertyPath: pickupHeightTolerance
@@ -15963,7 +15963,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5255414586414413736, guid: 7db697a145892754e9c5b3a877771a2f, type: 3}
       propertyPath: placementYThreshold
-      value: 0.8
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 5255414586414413736, guid: 7db697a145892754e9c5b3a877771a2f, type: 3}
       propertyPath: pickupHeightTolerance
@@ -16044,7 +16044,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6771063566956526723, guid: fd59629f5ce189a469cfbdba903091d5, type: 3}
       propertyPath: placementYThreshold
-      value: 0.8
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 6771063566956526723, guid: fd59629f5ce189a469cfbdba903091d5, type: 3}
       propertyPath: pickupHeightTolerance
