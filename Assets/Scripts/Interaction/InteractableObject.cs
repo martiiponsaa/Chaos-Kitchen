@@ -36,8 +36,16 @@ public class InteractableObject : MonoBehaviour
     [SerializeField] private IngredientType ingredientType = IngredientType.None;
     [Tooltip("Assign this object to a specific player (optional). If set, only that player may pick/place it.")]
     [SerializeField] private PlayerInteraction ownerPlayer = null;
+    [Tooltip("When enabled, the wrong player can carry this ingredient temporarily and pass it to its owner when both players are aligned.")]
+    [SerializeField] private bool passableIngredient = false;
     [Tooltip("When enabled, the object cannot be picked up until gameplay unlocks it.")]
     [SerializeField] private bool interactionLocked = false;
+
+    [Header("Pass Transfer")]
+    [Tooltip("Maximum hand-to-hand distance allowed for an automatic ingredient pass.")]
+    [SerializeField] private float passTransferDistance = 0.75f;
+    [Tooltip("Maximum vertical tolerance between both hand hitboxes for an automatic ingredient pass.")]
+    [SerializeField] private float passTransferHeightTolerance = 0.12f;
 
     // Public getter and setter to allow processing slots to transform ingredients (e.g., cook meat -> cooked meat)
     public IngredientType GetIngredientType() => ingredientType;
@@ -45,6 +53,8 @@ public class InteractableObject : MonoBehaviour
 
     public PlayerInteraction GetOwner() => ownerPlayer;
     public void SetOwner(PlayerInteraction p) => ownerPlayer = p;
+    public bool IsPassableIngredient() => passableIngredient;
+    public void SetPassableIngredient(bool enabled) => passableIngredient = enabled;
     public void SetInteractionLocked(bool locked) => interactionLocked = locked;
         private Vector3 initialSpawnPosition;
         public Vector3 GetInitialSpawnPosition() => initialSpawnPosition;
@@ -70,6 +80,7 @@ public class InteractableObject : MonoBehaviour
         if (isHeld && currentHolder != null)
         {
             FollowPlayer();
+            TryAutoPassToOwner();
         }
     }
 
@@ -204,6 +215,22 @@ public class InteractableObject : MonoBehaviour
                 return true;
             }
         }
+        else if (CanDropWithoutSlot(placingPlayer))
+        {
+            transform.position = new Vector3(transform.position.x, pickupYAtPickup, transform.position.z);
+            lastValidPosition = transform.position;
+            ReleaseFromHand();
+
+            Rigidbody rb = GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = false;
+                rb.WakeUp();
+            }
+
+            Debug.Log($"{gameObject.name} dropped on the ground without a slot.");
+            return true;
+        }
         else if (usePhysicsPlacement)
         {
             // Fallback behaviour if physics placement is enabled
@@ -311,27 +338,21 @@ public class InteractableObject : MonoBehaviour
         bool heightOk = Mathf.Abs(playerPos.y - transform.position.y) <= pickupHeightTolerance;
         if (!heightOk) return false;
 
-        // 2. DETECTAR EL NIVELL I BLOCAR DE MANERA ABSOLUTA
-        string escenaActual = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-
-        // Només apliquem el bloqueig invers si estem jugant al Nivell 2 ("FirstLevel 1")
-        if (escenaActual == "FirstLevel 1")
+        // 2. PASSABLE INGREDIENT RULE
+        // If this ingredient is marked passable, the owner cannot pick it up,
+        // but the other player can carry it until a transfer happens.
+        if (passableIngredient && ownerPlayer != null)
         {
-            if (GetComponent<PassableIngredient>() != null && ownerPlayer != null)
+            if (ownerPlayer == player)
             {
-                // SI SÓC L'AMO FINAL: No em deixis agafar l'ingredient sota cap concepte!
-                // Retornem false directament tallant la funció perquè no llegeixi les receptes de sota.
-                if (ownerPlayer == player)
-                {
-                    return false;
-                }
-
-                // SI SÓC EL TRANSPORTADOR (L'altre jugador): El deixem agafar lliurement
-                return true;
+                return false;
             }
+
+            // The non-owner can carry it temporarily.
+            return true;
         }
 
-        // 3. LÒGICA NORMAL DEL JOC (Per al Nivell 1 i altres objectes comuns)
+        // 3. LÒGICA NORMAL DEL JOC (Per a altres objectes comuns)
         if (ownerPlayer != null && ownerPlayer != player) return false;
 
         if (ingredientType != IngredientType.None)
@@ -413,6 +434,12 @@ public class InteractableObject : MonoBehaviour
         if (!isHeld) return false;
         if (playerPos.y > placementYThreshold) return false;
 
+        if (passableIngredient && ownerPlayer != null && player != null && player != ownerPlayer)
+        {
+            pendingPlacementSlot = null;
+            return true;
+        }
+
         // Find closest free placement slot to the player (XZ plane)
         PlacementSlot[] slots = FindObjectsByType<PlacementSlot>(FindObjectsSortMode.None);
         PlacementSlot closest = null;
@@ -482,5 +509,68 @@ public class InteractableObject : MonoBehaviour
     public Vector3 GetPosition()
     {
         return transform.position;
+    }
+
+    private bool CanDropWithoutSlot(PlayerInteraction placingPlayer)
+    {
+        return passableIngredient && ownerPlayer != null && placingPlayer != null && placingPlayer != ownerPlayer;
+    }
+
+    private void ReleaseFromHand()
+    {
+        isHeld = false;
+        currentHolder = null;
+        pendingPlacementSlot = null;
+    }
+
+    private bool TryAutoPassToOwner()
+    {
+        if (!passableIngredient || currentHolder == null || ownerPlayer == null || currentHolder == ownerPlayer)
+        {
+            return false;
+        }
+
+        if (!ownerPlayer.CanReceiveTransferredObject(this))
+        {
+            return false;
+        }
+
+        if (!currentHolder.IsHandHitboxInContactWith(ownerPlayer))
+        {
+            return false;
+        }
+
+        return TransferTo(ownerPlayer);
+    }
+
+    private bool TransferTo(PlayerInteraction receiver)
+    {
+        if (receiver == null || currentHolder == null || receiver == currentHolder)
+        {
+            return false;
+        }
+
+        PlayerInteraction previousHolder = currentHolder;
+        if (!previousHolder.ReleaseHeldObject(this))
+        {
+            return false;
+        }
+
+        if (!receiver.ReceiveTransferredObject(this))
+        {
+            previousHolder.ReceiveTransferredObject(this);
+            return false;
+        }
+
+        currentHolder = receiver;
+        ownerPlayer = receiver;
+        passableIngredient = false;
+        lastValidPosition = transform.position;
+
+        Vector3 receiverHand = receiver.GetHandPosition();
+        transform.position = new Vector3(receiverHand.x, receiverHand.y, receiverHand.z);
+
+        Debug.Log($"{gameObject.name} passed from {previousHolder.name} to {receiver.name}");
+        return true;
     }
 }

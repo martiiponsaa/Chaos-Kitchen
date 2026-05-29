@@ -16,6 +16,12 @@ public class PlayerInteraction : MonoBehaviour
     [Tooltip("Maximum number of objects player can hold at once (for future expansion)")]
     [SerializeField] private int maxHeldObjects = 1;
 
+    [Header("Hand Reference")]
+    [Tooltip("Optional: assign the real hand hitbox transform. Transfer checks use this position.")]
+    [SerializeField] private Transform handHitboxTransform;
+    [Tooltip("Optional: assign the collider used as the hand hitbox. Pass transfer uses overlap between both players' hand hitboxes.")]
+    [SerializeField] private Collider handHitboxCollider;
+
     [Header("Sons d'Interacci�")]
     [Tooltip("Arrossega el so que far� el personatge quan agafi un objecte")]
     [SerializeField] private AudioClip grabSound;
@@ -48,6 +54,11 @@ public class PlayerInteraction : MonoBehaviour
         else
         {
             handInteraction.OpenHand();
+        }
+
+        if (handHitboxCollider == null && handHitboxTransform != null)
+        {
+            handHitboxCollider = handHitboxTransform.GetComponent<Collider>();
         }
     }
 
@@ -131,8 +142,11 @@ public class PlayerInteraction : MonoBehaviour
         if (obj == null || heldObjects.Contains(obj)) return;
 
         obj.PickUp(this);
-        // claim ownership when picked up
-        obj.SetOwner(this);
+        // For passable ingredients, keep the pre-assigned final owner until transfer.
+        if (!obj.IsPassableIngredient())
+        {
+            obj.SetOwner(this);
+        }
         heldObjects.Add(obj);
 
         if (handInteraction != null)
@@ -146,6 +160,39 @@ public class PlayerInteraction : MonoBehaviour
             Vector3 cameraPos = Camera.main != null ? Camera.main.transform.position : transform.position;
             PlaySfxAtPoint(grabSound, cameraPos);
         }
+    }
+
+    public bool CanReceiveTransferredObject(InteractableObject obj)
+    {
+        return obj != null && heldObjects.Count < maxHeldObjects;
+    }
+
+    public bool ReceiveTransferredObject(InteractableObject obj)
+    {
+        if (!CanReceiveTransferredObject(obj) || heldObjects.Contains(obj)) return false;
+
+        heldObjects.Add(obj);
+
+        if (handInteraction != null)
+        {
+            handInteraction.CloseHand();
+        }
+
+        Debug.Log($"Player received {obj.gameObject.name}. Holding {heldObjects.Count} object(s)");
+        return true;
+    }
+
+    public bool ReleaseHeldObject(InteractableObject obj)
+    {
+        if (obj == null) return false;
+
+        bool removed = heldObjects.Remove(obj);
+        if (removed && heldObjects.Count == 0 && handInteraction != null)
+        {
+            handInteraction.OpenHand();
+        }
+
+        return removed;
     }
 
     /// <summary>
@@ -201,6 +248,36 @@ public class PlayerInteraction : MonoBehaviour
     public List<InteractableObject> GetHeldObjects()
     {
         return new List<InteractableObject>(heldObjects);
+    }
+
+    public Vector3 GetHandPosition()
+    {
+        if (handHitboxTransform != null)
+        {
+            return handHitboxTransform.position;
+        }
+
+        if (handInteraction != null)
+        {
+            return handInteraction.transform.position;
+        }
+
+        return transform.position;
+    }
+
+    public bool IsHandHitboxInContactWith(PlayerInteraction other)
+    {
+        if (other == null || handHitboxCollider == null) return false;
+
+        Collider otherHandCollider = other.GetHandHitboxCollider();
+        if (otherHandCollider == null) return false;
+
+        return handHitboxCollider.bounds.Intersects(otherHandCollider.bounds);
+    }
+
+    public Collider GetHandHitboxCollider()
+    {
+        return handHitboxCollider;
     }
 
     private void PlaySfxAtPoint(AudioClip clip, Vector3 position)
