@@ -63,6 +63,7 @@ public class CookingSlot : MonoBehaviour
 
         objectBeingCooked = obj;
         originalIngredientType = obj.GetIngredientType();
+        NotifyPizzaMaterialSwapStart(obj);
         CacheOriginalRenderers(obj);
         DestroyCookedVisual();
         DestroyBurnedVisual();
@@ -79,6 +80,7 @@ public class CookingSlot : MonoBehaviour
     public void CancelCooking()
     {
         StopActiveSequence();
+        NotifyPizzaMaterialSwapEnd();
         objectBeingCooked = null;
         Debug.Log($"[CookingSlot] Cooking cancelled on {name} (ingredient picked up).");
     }
@@ -97,6 +99,7 @@ public class CookingSlot : MonoBehaviour
         {
             activeSequence = null;
             objectBeingCooked = null;
+            NotifyPizzaMaterialSwapEnd();
             yield break;
         }
 
@@ -124,6 +127,7 @@ public class CookingSlot : MonoBehaviour
                 activeSequence = null;
                 objectBeingCooked = null;
                 originalIngredientType = IngredientType.None;
+                NotifyPizzaMaterialSwapEnd();
                 yield break;
             }
 
@@ -138,6 +142,7 @@ public class CookingSlot : MonoBehaviour
             activeSequence = null;
             objectBeingCooked = null;
             originalIngredientType = IngredientType.None;
+            NotifyPizzaMaterialSwapEnd();
             yield break;
         }
 
@@ -252,6 +257,7 @@ public class CookingSlot : MonoBehaviour
         slot.isOccupied = false;
         objectBeingCooked = null;
         activeSequence = null;
+        NotifyPizzaMaterialSwapEnd();
 
         Destroy(obj.gameObject);
     }
@@ -264,6 +270,30 @@ public class CookingSlot : MonoBehaviour
             activeSequence = null;
         }
     }
+
+    private void NotifyPizzaMaterialSwapStart(InteractableObject obj)
+    {
+        if (obj == null || obj.GetIngredientType() != IngredientType.Pizza)
+        {
+            return;
+        }
+
+        PizzaOvenMaterialSwap swap = GetComponent<PizzaOvenMaterialSwap>();
+        if (swap != null)
+        {
+            swap.OnPizzaCookingStarted();
+        }
+    }
+
+    private void NotifyPizzaMaterialSwapEnd()
+    {
+        PizzaOvenMaterialSwap swap = GetComponent<PizzaOvenMaterialSwap>();
+        if (swap != null)
+        {
+            swap.OnPizzaCookingEnded();
+        }
+    }
+
     private IEnumerator AutomaticBurnAndResetSequence(InteractableObject obj)
     {
         Debug.Log($"[CookingSlot] {obj.name} burned on {name}! Showing burn visual for {burnedDisplayDuration}s.");
@@ -285,6 +315,7 @@ public class CookingSlot : MonoBehaviour
         DestroyBurnedVisual();
         obj.transform.position = obj.GetInitialSpawnPosition();
         slot.isOccupied = false;
+        NotifyPizzaMaterialSwapEnd();
         RestoreRawVisual(obj);
         FindObjectOfType<GuidanceManager>()?.OnIngredientRespawnedAfterBurn(obj.gameObject, obj.GetOwner());
         obj.SetInteractionLocked(false);

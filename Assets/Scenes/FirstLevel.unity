@@ -2703,7 +2703,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOccupied: 0
-  center: {fileID: 0}
+  center: {fileID: 1756475092}
   acceptOnlyDishes: 0
   consumeOnPlace: 0
   acceptedDishTypes: 
@@ -2731,6 +2731,43 @@ MonoBehaviour:
   pulseSpeed: 0.5
   pulseIntensity: 5
   blinkSpeed: 1.5
+--- !u!114 &430905716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430905712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a64094b14ac36745ad16ee491adbae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cookDuration: 10
+  pickupWindow: 10
+  burnedDisplayDuration: 5
+  cookedPrefab: {fileID: 0}
+  burnedPrefab: {fileID: 0}
+  cookedClip: {fileID: 0}
+  burntClip: {fileID: 0}
+  sfxMixerGroup: {fileID: 0}
+--- !u!114 &430905717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 430905712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d641d228ccd839b44bd4e0142376a4f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ovenObject: {fileID: 769190868}
+  ovenCookingMaterial: {fileID: 2100000, guid: 3dfe7dab71bb03740a53b7ba197b8d5d, type: 2}
+  tableObject: {fileID: 1759428565}
+  tableCookingMaterial: {fileID: 2100000, guid: c2b015241cbc3e645862ab6b30aea6b5, type: 2}
+  includeChildren: 1
 --- !u!1001 &434104728
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5099,6 +5136,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1080511180}
   m_SourcePrefab: {fileID: 100100000, guid: d41373a2293462542a8e0a938c149d46, type: 3}
+--- !u!1 &769190868 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6048276057188019605, guid: 298895b511241425b89c241ef25303b4, type: 3}
+  m_PrefabInstance: {fileID: 964246556}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &778223307
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6803,6 +6845,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 249935227181967949, guid: 298895b511241425b89c241ef25303b4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 430905714}
+    - targetCorrespondingSourceObject: {fileID: 249935227181967949, guid: 298895b511241425b89c241ef25303b4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 430905716}
+    - targetCorrespondingSourceObject: {fileID: 249935227181967949, guid: 298895b511241425b89c241ef25303b4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 430905717}
   m_SourcePrefab: {fileID: 100100000, guid: 298895b511241425b89c241ef25303b4, type: 3}
 --- !u!1001 &988834340
 PrefabInstance:
@@ -15179,7 +15227,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TrackingManager
   calibrationUI: {fileID: 1154398784}
   trackingInterface: {fileID: 1154398778}
-  enableTracking: 1
+  enableTracking: 0
   numberOfPlayers: 2
   numberOfBaseStations: 4
   enableRotation: 1

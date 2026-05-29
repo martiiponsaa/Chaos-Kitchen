@@ -172,6 +172,7 @@ public class PlayerInteraction : MonoBehaviour
         if (!CanReceiveTransferredObject(obj) || heldObjects.Contains(obj)) return false;
 
         heldObjects.Add(obj);
+        FindObjectOfType<GuidanceManager>()?.OnIngredientPickedUp(obj.gameObject, this);
 
         if (handInteraction != null)
         {
