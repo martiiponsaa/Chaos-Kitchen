@@ -79,7 +79,7 @@ public class HandInteraction : MonoBehaviour
 	{
 		if (isHandTracking)
 		{
-			transform.localRotation = Quaternion.Euler(90f, -180f, 0f);
+			transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
 		}
 	}
 }
