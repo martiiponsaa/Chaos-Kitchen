@@ -343,7 +343,12 @@ public class CookingSlot : MonoBehaviour
         GameObject instance = Instantiate(prefab, parent);
         instance.transform.localPosition = Vector3.zero;
         instance.transform.localRotation = Quaternion.identity;
-        instance.transform.localScale = prefab.transform.localScale;
+        Vector3 targetWorldScale = prefab.transform.localScale;
+        Vector3 parentScale = parent.lossyScale;
+        instance.transform.localScale = new Vector3(
+            parentScale.x != 0f ? targetWorldScale.x / parentScale.x : targetWorldScale.x,
+            parentScale.y != 0f ? targetWorldScale.y / parentScale.y : targetWorldScale.y,
+            parentScale.z != 0f ? targetWorldScale.z / parentScale.z : targetWorldScale.z);
 
         MakeVisualOnly(instance);
         return instance;

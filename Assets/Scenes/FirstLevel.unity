@@ -767,7 +767,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openHand: {fileID: 511936797}
   closedHand: {fileID: 1935353012}
-  isHandTracking: 0
+  isHandTracking: 1
 --- !u!65 &89214382
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2746,8 +2746,8 @@ MonoBehaviour:
   cookDuration: 10
   pickupWindow: 10
   burnedDisplayDuration: 5
-  cookedPrefab: {fileID: 6524572224961453432, guid: 0ddf14044ff31684796dadbc3e189e3f, type: 3}
-  burnedPrefab: {fileID: 6524572224961453432, guid: 0ddf14044ff31684796dadbc3e189e3f, type: 3}
+  cookedPrefab: {fileID: 6524572224961453432, guid: 4f346a24578b3d2448908911e503fc04, type: 3}
+  burnedPrefab: {fileID: 6524572224961453432, guid: 82443c72363605345be930a3bde2e704, type: 3}
   burnedVisualLocalOffset: {x: 0, y: 0, z: 0}
   cookedClip: {fileID: 8300000, guid: 42172705ac516094fb287d920101efcd, type: 3}
   burntClip: {fileID: 8300000, guid: 16d80c2054d0f274aa38719340cb5ab0, type: 3}
@@ -3221,8 +3221,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5469416ad5d334d9a7945720f24d6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prepCountdownSeconds: 1
-  levelDurationSeconds: 500
+  prepCountdownSeconds: 10
+  levelDurationSeconds: 150
   prepTimer: {fileID: 1688422425}
   levelTimer: {fileID: 165757223}
   players:
@@ -8939,7 +8939,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openHand: {fileID: 714580150}
   closedHand: {fileID: 599526319}
-  isHandTracking: 0
+  isHandTracking: 1
 --- !u!65 &1397371354
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9452,7 +9452,7 @@ MonoBehaviour:
   burnedVisualLocalOffset: {x: 0, y: 0, z: 0}
   cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
   burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}
-  cooking: {fileID: 0}
+  cooking: {fileID: 8300000, guid: 87284a2c4714eca40b9e9189b1f02dbb, type: 3}
   sfxMixerGroup: {fileID: 4284510829063109932, guid: 7f46ac3e1464ccd42ae71b833abc9b61, type: 2}
 --- !u!114 &1459337576
 MonoBehaviour:
@@ -15294,7 +15294,7 @@ MonoBehaviour:
   - {fileID: 2039963491}
   calibrationSaveFilePath: D:\Calibration\Eje Z
   playerSelected: 1
-  trackingDisabledPlayerSpeed: 50
+  trackingDisabledPlayerSpeed: 5
 --- !u!1 &2081291168
 GameObject:
   m_ObjectHideFlags: 0
