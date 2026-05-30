@@ -11122,7 +11122,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TrackingManager
   calibrationUI: {fileID: 1154398784}
   trackingInterface: {fileID: 1154398778}
-  enableTracking: 1
+  enableTracking: 0
   numberOfPlayers: 2
   numberOfBaseStations: 4
   enableRotation: 1

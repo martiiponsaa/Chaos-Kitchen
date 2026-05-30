@@ -11,5 +11,7 @@ public enum IngredientType
     Pizza, 
     CookedPizza, 
     Hamburger, 
-    Bacon
+    Bacon, 
+    Lettuce,
+    Onion
 }
