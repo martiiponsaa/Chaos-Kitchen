@@ -767,7 +767,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openHand: {fileID: 511936797}
   closedHand: {fileID: 1935353012}
-  isHandTracking: 1
+  isHandTracking: 0
 --- !u!65 &89214382
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2746,8 +2746,9 @@ MonoBehaviour:
   cookDuration: 10
   pickupWindow: 10
   burnedDisplayDuration: 5
-  cookedPrefab: {fileID: 0}
-  burnedPrefab: {fileID: 0}
+  cookedPrefab: {fileID: 6524572224961453432, guid: 0ddf14044ff31684796dadbc3e189e3f, type: 3}
+  burnedPrefab: {fileID: 6524572224961453432, guid: 0ddf14044ff31684796dadbc3e189e3f, type: 3}
+  burnedVisualLocalOffset: {x: 0, y: 0, z: 0}
   cookedClip: {fileID: 8300000, guid: 42172705ac516094fb287d920101efcd, type: 3}
   burntClip: {fileID: 8300000, guid: 16d80c2054d0f274aa38719340cb5ab0, type: 3}
   cooking: {fileID: 8300000, guid: 5919c69c43d68d44db2b891d6d933ce6, type: 3}
@@ -3220,7 +3221,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d5469416ad5d334d9a7945720f24d6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prepCountdownSeconds: 10
+  prepCountdownSeconds: 1
   levelDurationSeconds: 500
   prepTimer: {fileID: 1688422425}
   levelTimer: {fileID: 165757223}
@@ -6942,7 +6943,18 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 249935227181967949, guid: 298895b511241425b89c241ef25303b4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1579312298}
+    - targetCorrespondingSourceObject: {fileID: 249935227181967949, guid: 298895b511241425b89c241ef25303b4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1579312302}
+    - targetCorrespondingSourceObject: {fileID: 249935227181967949, guid: 298895b511241425b89c241ef25303b4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1579312301}
   m_SourcePrefab: {fileID: 100100000, guid: 298895b511241425b89c241ef25303b4, type: 3}
+--- !u!1 &988834341 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6048276057188019605, guid: 298895b511241425b89c241ef25303b4, type: 3}
+  m_PrefabInstance: {fileID: 988834340}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &997015716
 GameObject:
   m_ObjectHideFlags: 0
@@ -7755,6 +7767,7 @@ MonoBehaviour:
   burnedDisplayDuration: 5
   cookedPrefab: {fileID: 5182101408359990397, guid: 7d09872a746719640bcff2b04ca44abc, type: 3}
   burnedPrefab: {fileID: 2592684031479428191, guid: b4922d99395e4624e916e6d3b475a7c2, type: 3}
+  burnedVisualLocalOffset: {x: 0, y: 0, z: 0}
   cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
   burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}
   cooking: {fileID: 8300000, guid: 87284a2c4714eca40b9e9189b1f02dbb, type: 3}
@@ -8926,7 +8939,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openHand: {fileID: 714580150}
   closedHand: {fileID: 599526319}
-  isHandTracking: 1
+  isHandTracking: 0
 --- !u!65 &1397371354
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9436,6 +9449,7 @@ MonoBehaviour:
   burnedDisplayDuration: 5
   cookedPrefab: {fileID: 5182101408359990397, guid: 7d09872a746719640bcff2b04ca44abc, type: 3}
   burnedPrefab: {fileID: 2592684031479428191, guid: b4922d99395e4624e916e6d3b475a7c2, type: 3}
+  burnedVisualLocalOffset: {x: 0, y: 0, z: 0}
   cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
   burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}
   cooking: {fileID: 0}
@@ -10821,7 +10835,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOccupied: 0
-  center: {fileID: 0}
+  center: {fileID: 19919456}
   acceptOnlyDishes: 0
   consumeOnPlace: 0
   acceptedDishTypes: 
@@ -10854,6 +10868,45 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 593387112313254135, guid: 298895b511241425b89c241ef25303b4, type: 3}
   m_PrefabInstance: {fileID: 988834340}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1579312301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1579312297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d641d228ccd839b44bd4e0142376a4f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ovenObject: {fileID: 988834341}
+  ovenCookingMaterial: {fileID: 2100000, guid: a9f1ef9e1d7731941b108fa1e483e0a8, type: 2}
+  tableObject: {fileID: 170854932}
+  tableCookingMaterial: {fileID: 2100000, guid: 9747099ae2637054ba9a419711473cc6, type: 2}
+  includeChildren: 1
+--- !u!114 &1579312302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1579312297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a64094b14ac36745ad16ee491adbae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cookDuration: 10
+  pickupWindow: 10
+  burnedDisplayDuration: 5
+  cookedPrefab: {fileID: 0}
+  burnedPrefab: {fileID: 0}
+  burnedVisualLocalOffset: {x: 0, y: 0, z: 0}
+  cookedClip: {fileID: 8300000, guid: 42172705ac516094fb287d920101efcd, type: 3}
+  burntClip: {fileID: 8300000, guid: 16d80c2054d0f274aa38719340cb5ab0, type: 3}
+  cooking: {fileID: 8300000, guid: 5919c69c43d68d44db2b891d6d933ce6, type: 3}
+  sfxMixerGroup: {fileID: 4284510829063109932, guid: 7f46ac3e1464ccd42ae71b833abc9b61, type: 2}
 --- !u!1 &1609416109
 GameObject:
   m_ObjectHideFlags: 0
@@ -12319,7 +12372,7 @@ Transform:
   m_GameObject: {fileID: 1756475091}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.2, z: 0}
+  m_LocalPosition: {x: 0, y: 0.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -15241,7 +15294,7 @@ MonoBehaviour:
   - {fileID: 2039963491}
   calibrationSaveFilePath: D:\Calibration\Eje Z
   playerSelected: 1
-  trackingDisabledPlayerSpeed: 5
+  trackingDisabledPlayerSpeed: 50
 --- !u!1 &2081291168
 GameObject:
   m_ObjectHideFlags: 0

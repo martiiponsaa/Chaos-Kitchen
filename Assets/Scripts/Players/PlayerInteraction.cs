@@ -141,7 +141,11 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (obj == null || heldObjects.Contains(obj)) return;
 
-        obj.PickUp(this);
+        if (!obj.PickUp(this))
+        {
+            return;
+        }
+
         // For passable ingredients, keep the pre-assigned final owner until transfer.
         if (!obj.IsPassableIngredient())
         {

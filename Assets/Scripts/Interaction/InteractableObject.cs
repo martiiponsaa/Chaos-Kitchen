@@ -87,9 +87,9 @@ public class InteractableObject : MonoBehaviour
     /// <summary>
     /// Called when player picks up this object
     /// </summary>
-    public void PickUp(PlayerInteraction player)
+    public bool PickUp(PlayerInteraction player)
     {
-        if (isHeld || interactionLocked) return;
+        if (isHeld || interactionLocked) return false;
 
         isHeld = true;
         currentHolder = player;
@@ -105,10 +105,6 @@ public class InteractableObject : MonoBehaviour
         // If this object was occupying a placement slot, free it when picked up
         if (occupiedSlot != null)
         {
-            //Cuinat d'hamburguesa
-            var cookingSlot = occupiedSlot.GetComponent<CookingSlot>();
-            if (cookingSlot != null) cookingSlot.CancelCooking();
-
             occupiedSlot.isOccupied = false;
             occupiedSlot = null;
         }
@@ -121,6 +117,7 @@ public class InteractableObject : MonoBehaviour
         }
 
         Debug.Log($"{gameObject.name} picked up by player");
+        return true;
     }
 
     /// <summary>

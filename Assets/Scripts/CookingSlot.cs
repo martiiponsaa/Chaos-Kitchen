@@ -22,6 +22,9 @@ public class CookingSlot : MonoBehaviour
     [Tooltip("Prefab spawned at the slot position when the ingredient burns.")]
     public GameObject burnedPrefab;
 
+    [Tooltip("Offset applied to the burned visual relative to the slot position.")]
+    [SerializeField] private Vector3 burnedVisualLocalOffset = Vector3.zero;
+
     [Header("Audio")]
     [SerializeField] private AudioClip cookedClip;
     [SerializeField] private AudioClip burntClip;
@@ -70,6 +73,7 @@ public class CookingSlot : MonoBehaviour
         DestroyBurnedVisual();
         SetOriginalVisualVisible(true);
         obj.SetInteractionLocked(true);
+        PlayCookingLoop();
         activeSequence = StartCoroutine(CookingSequence(obj));
     }
 
@@ -100,6 +104,7 @@ public class CookingSlot : MonoBehaviour
         {
             activeSequence = null;
             objectBeingCooked = null;
+            StopCookingLoop();
             NotifyPizzaMaterialSwapEnd();
             yield break;
         }
@@ -128,6 +133,7 @@ public class CookingSlot : MonoBehaviour
                 activeSequence = null;
                 objectBeingCooked = null;
                 originalIngredientType = IngredientType.None;
+                StopCookingLoop();
                 NotifyPizzaMaterialSwapEnd();
                 yield break;
             }
@@ -143,6 +149,7 @@ public class CookingSlot : MonoBehaviour
             activeSequence = null;
             objectBeingCooked = null;
             originalIngredientType = IngredientType.None;
+            StopCookingLoop();
             NotifyPizzaMaterialSwapEnd();
             yield break;
         }
@@ -220,12 +227,7 @@ public class CookingSlot : MonoBehaviour
 
         DestroyCookedVisual();
         SetOriginalVisualVisible(false);
-
-        Vector3 prefabScale = cookedPrefab.transform.localScale;
-        cookedVisualInstance = Instantiate(cookedPrefab, obj.transform);
-        cookedVisualInstance.transform.localPosition = Vector3.zero;
-        cookedVisualInstance.transform.localRotation = Quaternion.identity;
-        cookedVisualInstance.transform.localScale = prefabScale;
+        cookedVisualInstance = SpawnVisualInstance(cookedPrefab, obj.transform);
     }
 
     private void RestoreRawVisual(InteractableObject obj)
@@ -246,7 +248,7 @@ public class CookingSlot : MonoBehaviour
         // Spawn burned visual at the slot position
         if (burnedPrefab != null)
         {
-            GameObject burned = Instantiate(burnedPrefab, slot.GetPosition(), Quaternion.identity);
+            GameObject burned = SpawnVisualInstance(burnedPrefab, obj.transform);
             Destroy(burned, burnedDisplayDuration);
         }
         else
@@ -301,12 +303,16 @@ public class CookingSlot : MonoBehaviour
 
         DestroyCookedVisual();
         SetOriginalVisualVisible(false);
+        StopCookingLoop();
 
         if (burnedPrefab != null)
         {
-            Vector3 spawnPos = slot.GetPosition();
-            burnedVisualInstance = Instantiate(burnedPrefab, spawnPos, Quaternion.identity);
-            if (burntClip != null) audioSource.PlayOneShot(burntClip);
+            burnedVisualInstance = SpawnVisualInstance(burnedPrefab, obj.transform);
+        }
+
+        if (burntClip != null)
+        {
+            audioSource.PlayOneShot(burntClip);
         }
 
         yield return new WaitForSeconds(burnedDisplayDuration);
@@ -325,5 +331,79 @@ public class CookingSlot : MonoBehaviour
 
         activeSequence = null;
         Debug.Log($"[CookingSlot] Burn finished on {name}. {obj.name} has been restored to raw state.");
+    }
+
+    private GameObject SpawnVisualInstance(GameObject prefab, Transform parent)
+    {
+        if (prefab == null || parent == null)
+        {
+            return null;
+        }
+
+        GameObject instance = Instantiate(prefab, parent);
+        instance.transform.localPosition = Vector3.zero;
+        instance.transform.localRotation = Quaternion.identity;
+        instance.transform.localScale = prefab.transform.localScale;
+
+        MakeVisualOnly(instance);
+        return instance;
+    }
+
+    private void MakeVisualOnly(GameObject instance)
+    {
+        if (instance == null)
+        {
+            return;
+        }
+
+        foreach (InteractableObject interactable in instance.GetComponentsInChildren<InteractableObject>(true))
+        {
+            Destroy(interactable);
+        }
+
+        foreach (Collider collider in instance.GetComponentsInChildren<Collider>(true))
+        {
+            Destroy(collider);
+        }
+
+        foreach (Rigidbody rigidbody in instance.GetComponentsInChildren<Rigidbody>(true))
+        {
+            Destroy(rigidbody);
+        }
+    }
+
+    private void PlayCookingLoop()
+    {
+        if (audioSource == null || cooking == null)
+        {
+            return;
+        }
+
+        audioSource.clip = cooking;
+        audioSource.loop = true;
+
+        if (!audioSource.isPlaying)
+        {
+            audioSource.Play();
+        }
+    }
+
+    private void StopCookingLoop()
+    {
+        if (audioSource == null)
+        {
+            return;
+        }
+
+        if (audioSource.isPlaying && audioSource.clip == cooking)
+        {
+            audioSource.Stop();
+        }
+
+        audioSource.loop = false;
+        if (audioSource.clip == cooking)
+        {
+            audioSource.clip = null;
+        }
     }
 }
