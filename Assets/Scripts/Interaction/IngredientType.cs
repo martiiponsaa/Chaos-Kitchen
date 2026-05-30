@@ -10,5 +10,6 @@ public enum IngredientType
     BreadTop,
     Pizza, 
     CookedPizza, 
-    Hamburger
+    Hamburger, 
+    Bacon
 }

@@ -41,6 +41,10 @@ public class InteractableObject : MonoBehaviour
     [Tooltip("When enabled, the object cannot be picked up until gameplay unlocks it.")]
     [SerializeField] private bool interactionLocked = false;
 
+    [Header("Passable Ingredient")]
+    [Tooltip("Seconds after a passable ingredient is picked up before it can be placed again.")]
+    [SerializeField] private float passablePickupDelay = 0.5f;
+
     [Header("Pass Transfer")]
     [Tooltip("Maximum hand-to-hand distance allowed for an automatic ingredient pass.")]
     [SerializeField] private float passTransferDistance = 0.75f;
@@ -65,6 +69,7 @@ public class InteractableObject : MonoBehaviour
     private PlayerInteraction currentHolder;
     private Vector3 lastValidPosition;
     private float pickupYAtPickup;
+    private float passablePickupDelayUntil = 0f;
     private PlacementSlot occupiedSlot;
     private PlacementSlot pendingPlacementSlot;
 
@@ -94,6 +99,10 @@ public class InteractableObject : MonoBehaviour
         isHeld = true;
         currentHolder = player;
         lastValidPosition = transform.position;
+        if (passableIngredient)
+        {
+            passablePickupDelayUntil = Time.time + passablePickupDelay;
+        }
         // Record the Y at pickup so we can preserve it on drop
         pickupYAtPickup = transform.position.y;
 
@@ -430,6 +439,12 @@ public class InteractableObject : MonoBehaviour
     {
         if (!isHeld) return false;
         if (playerPos.y > placementYThreshold) return false;
+
+        if (passableIngredient && Time.time < passablePickupDelayUntil)
+        {
+            pendingPlacementSlot = null;
+            return false;
+        }
 
         if (passableIngredient && ownerPlayer != null && player != null && player != ownerPlayer)
         {
