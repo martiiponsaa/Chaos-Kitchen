@@ -642,9 +642,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 89050788}
-  - component: {fileID: 89050787}
-  - component: {fileID: 89050786}
-  - component: {fileID: 89050785}
   - component: {fileID: 89050790}
   - component: {fileID: 89050789}
   m_Layer: 0
@@ -654,68 +651,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &89050785
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89050784}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c059a96a9f95ba043824e47549cf9ed3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isOccupied: 0
-  center: {fileID: 0}
-  acceptOnlyDishes: 0
-  consumeOnPlace: 0
-  acceptedDishTypes: 
-  linkedDish: {fileID: 0}
-  assignedPlayer: {fileID: 0}
-  isProcessingSlot: 0
-  acceptsIngredient: 0
-  acceptedIngredients: 
-  producesIngredient: 0
-  producedIngredients: 
---- !u!114 &89050786
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89050784}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f32d3ce51f394e548bfa98cf42392a86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  highlightMaterial: {fileID: 2100000, guid: 10a02c71bf6048147acaf136751bf165, type: 2}
-  defaultMaterial: {fileID: 2100000, guid: c95963dbc47ea0443bc9d052cb820e1a, type: 2}
-  usePulse: 1
-  pulseColor: {r: 1, g: 1, b: 1, a: 1}
-  pulseSpeed: 2
-  pulseIntensity: 1.5
-  blinkSpeed: 0.5
---- !u!114 &89050787
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89050784}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22550f21f159b244d80cb1edf49abf0f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioMixer: {fileID: 0}
-  musicParameter: Music
-  targetDb: 2
-  musicFadeDuration: 2
-  musicSources: []
-  fadeImage: {fileID: 0}
-  imageFadeDuration: 2
 --- !u!4 &89050788
 Transform:
   m_ObjectHideFlags: 0
@@ -8259,8 +8194,8 @@ MonoBehaviour:
   - ingredientType: 15
     cookedPrefab: {fileID: 5560170639364848436, guid: 64458867d5002a14eb84e8cd313be00b, type: 3}
     burnedPrefab: {fileID: 2358795005452695298, guid: d87a4858b84d00146a50f21869e4128a, type: 3}
-    cookedClip: {fileID: 0}
-    burntClip: {fileID: 0}
+    cookedClip: {fileID: 8300000, guid: 01fa12b86856df14aad43572d78a845f, type: 3}
+    burntClip: {fileID: 8300000, guid: 8f4b6d3163f6c9b42b554b79f6f2395c, type: 3}
   burnedVisualLocalOffset: {x: 0, y: 0, z: 0}
   cookedClip: {fileID: 8300000, guid: 3f690936305bc0044a7584b3797e0625, type: 3}
   burntClip: {fileID: 8300000, guid: bb81a6761555c394baff39a49ff2e062, type: 3}

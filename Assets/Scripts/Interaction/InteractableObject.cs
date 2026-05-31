@@ -59,6 +59,7 @@ public class InteractableObject : MonoBehaviour
     public void SetOwner(PlayerInteraction p) => ownerPlayer = p;
     public bool IsPassableIngredient() => passableIngredient;
     public void SetPassableIngredient(bool enabled) => passableIngredient = enabled;
+    public void RestoreInitialPassableIngredientState() => passableIngredient = initialPassableIngredient;
     public void SetInteractionLocked(bool locked) => interactionLocked = locked;
         private Vector3 initialSpawnPosition;
         public Vector3 GetInitialSpawnPosition() => initialSpawnPosition;
@@ -71,12 +72,14 @@ public class InteractableObject : MonoBehaviour
     private Vector3 lastValidPosition;
     private float pickupYAtPickup;
     private float passablePickupDelayUntil = 0f;
+    private bool initialPassableIngredient = false;
     private PlacementSlot occupiedSlot;
     private PlacementSlot pendingPlacementSlot;
 
     private void Start()
     {
         lastValidPosition = transform.position;
+        initialPassableIngredient = passableIngredient;
             initialSpawnPosition = transform.position;
     }
 
@@ -550,6 +553,12 @@ public class InteractableObject : MonoBehaviour
     private bool TryAutoPassToOwner()
     {
         if (!passableIngredient || currentHolder == null || ownerPlayer == null || currentHolder == ownerPlayer)
+        {
+            return false;
+        }
+
+        GuidanceManager guidanceManager = FindObjectOfType<GuidanceManager>();
+        if (guidanceManager != null && !guidanceManager.CanPlayerReceiveIngredientNow(ownerPlayer, this))
         {
             return false;
         }

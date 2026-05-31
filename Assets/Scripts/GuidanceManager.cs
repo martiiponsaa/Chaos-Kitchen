@@ -144,6 +144,107 @@ public class GuidanceManager : MonoBehaviour
         UpdateAllInstructionTexts();
     }
 
+    public bool CanPlayerReceiveIngredientNow(PlayerInteraction player, InteractableObject ingredient)
+    {
+        if (player == null || ingredient == null)
+        {
+            return false;
+        }
+
+        IngredientType requestedType = ingredient.GetIngredientType();
+        if (requestedType == IngredientType.None)
+        {
+            return false;
+        }
+
+        Dish[] dishes = FindObjectsByType<Dish>(FindObjectsSortMode.None);
+        foreach (Dish dish in dishes)
+        {
+            if (dish == null)
+            {
+                continue;
+            }
+
+            if (!IsDishForPlayer(dish, player))
+            {
+                continue;
+            }
+
+            if (dish.CanAccept(requestedType))
+            {
+                return true;
+            }
+        }
+
+        PlacementSlot[] slots = FindObjectsByType<PlacementSlot>(FindObjectsSortMode.None);
+        foreach (PlacementSlot slot in slots)
+        {
+            if (slot == null || !slot.isProcessingSlot)
+            {
+                continue;
+            }
+
+            if (slot.assignedPlayer != null && slot.assignedPlayer != player)
+            {
+                continue;
+            }
+
+            if (!slot.CanProcessIngredient(requestedType))
+            {
+                continue;
+            }
+
+            IngredientType producedType = slot.GetProducedIngredient(requestedType);
+            if (producedType == IngredientType.None)
+            {
+                continue;
+            }
+
+            foreach (Dish dish in dishes)
+            {
+                if (dish == null || !IsDishForPlayer(dish, player))
+                {
+                    continue;
+                }
+
+                if (dish.CanAccept(producedType))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsDishForPlayer(Dish dish, PlayerInteraction player)
+    {
+        if (dish == null || player == null)
+        {
+            return false;
+        }
+
+        if (dish.GetAssignedPlayer() != null)
+        {
+            return dish.GetAssignedPlayer() == player;
+        }
+
+        foreach (var slot in PlacementSlot.all)
+        {
+            if (slot == null)
+            {
+                continue;
+            }
+
+            if (slot.linkedDish == dish && slot.assignedPlayer == player)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void UpdateAllInstructionTexts()
     {
         UpdatePlayerInstructionText(true);

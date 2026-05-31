@@ -365,6 +365,7 @@ public class CookingSlot : MonoBehaviour
         slot.isOccupied = false;
         NotifyPizzaMaterialSwapEnd();
         RestoreRawVisual(obj);
+        obj.RestoreInitialPassableIngredientState();
         FindObjectOfType<GuidanceManager>()?.OnIngredientRespawnedAfterBurn(obj.gameObject, obj.GetOwner());
         obj.SetInteractionLocked(false);
         objectBeingCooked = null;

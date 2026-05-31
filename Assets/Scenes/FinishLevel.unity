@@ -502,9 +502,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 89050788}
-  - component: {fileID: 89050787}
-  - component: {fileID: 89050786}
-  - component: {fileID: 89050785}
   - component: {fileID: 89050790}
   - component: {fileID: 89050789}
   m_Layer: 0
@@ -514,66 +511,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &89050785
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89050784}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c059a96a9f95ba043824e47549cf9ed3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isOccupied: 0
-  center: {fileID: 0}
-  acceptOnlyDishes: 0
-  consumeOnPlace: 0
-  acceptedDishTypes: 
-  linkedDish: {fileID: 0}
-  assignedPlayer: {fileID: 0}
-  isProcessingSlot: 0
-  acceptsIngredient: 0
-  producesIngredient: 0
---- !u!114 &89050786
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89050784}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f32d3ce51f394e548bfa98cf42392a86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  highlightMaterial: {fileID: 2100000, guid: 10a02c71bf6048147acaf136751bf165, type: 2}
-  defaultMaterial: {fileID: 2100000, guid: c95963dbc47ea0443bc9d052cb820e1a, type: 2}
-  usePulse: 1
-  pulseColor: {r: 1, g: 1, b: 1, a: 1}
-  pulseSpeed: 2
-  pulseIntensity: 1.5
-  blinkSpeed: 0.5
---- !u!114 &89050787
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89050784}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22550f21f159b244d80cb1edf49abf0f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioMixer: {fileID: 0}
-  musicParameter: Music
-  targetDb: 2
-  musicFadeDuration: 2
-  musicSources: []
-  fadeImage: {fileID: 0}
-  imageFadeDuration: 2
 --- !u!4 &89050788
 Transform:
   m_ObjectHideFlags: 0
@@ -689,9 +626,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95751aaaaa8fd47438993ce987d2a9e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  openHand: {fileID: 0}
-  closedHand: {fileID: 0}
-  isHandTracking: 0
+  openHand: {fileID: 511936797}
+  closedHand: {fileID: 1935353012}
+  isHandTracking: 1
 --- !u!1001 &101098725
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2467,6 +2404,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ace6b057ef7bc3b4a9bee527e3ff777f, type: 3}
+--- !u!1 &511936797 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6800072219925413975, guid: ace6b057ef7bc3b4a9bee527e3ff777f, type: 3}
+  m_PrefabInstance: {fileID: 511936796}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &515151148
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5665,7 +5607,9 @@ MonoBehaviour:
   assignedPlayer: {fileID: 2025534041}
   isProcessingSlot: 1
   acceptsIngredient: 4
+  acceptedIngredients: 
   producesIngredient: 5
+  producedIngredients: 
 --- !u!1 &1232370072
 GameObject:
   m_ObjectHideFlags: 0
@@ -6838,7 +6782,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   openHand: {fileID: 714580150}
   closedHand: {fileID: 599526319}
-  isHandTracking: 0
+  isHandTracking: 1
 --- !u!1001 &1408938910
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7920,7 +7864,9 @@ MonoBehaviour:
   assignedPlayer: {fileID: 2025534041}
   isProcessingSlot: 1
   acceptsIngredient: 8
+  acceptedIngredients: 
   producesIngredient: 9
+  producedIngredients: 
 --- !u!114 &1579312299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10379,6 +10325,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8b0a789bfa4e4874f8209d434b076cdd, type: 3}
+--- !u!1 &1935353012 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 889733352024946633, guid: 8b0a789bfa4e4874f8209d434b076cdd, type: 3}
+  m_PrefabInstance: {fileID: 1935353011}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1946388547
 GameObject:
   m_ObjectHideFlags: 0
