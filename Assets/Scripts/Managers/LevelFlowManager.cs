@@ -376,8 +376,8 @@ public class LevelFlowManager : MonoBehaviour
 
             if (objective.player != null && objective.player != deliveringPlayer)
             {
-                Debug.LogWarning($"LevelFlowManager: {deliveredDish.name} was delivered by the wrong player.");
-                return;
+                Debug.LogWarning($"LevelFlowManager: {deliveredDish.name} was delivered by the wrong player for objective '{objective.label}'. Skipping this objective.");
+                continue;
             }
 
             objective.completed = true;

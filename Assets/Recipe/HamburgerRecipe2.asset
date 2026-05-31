@@ -10,6 +10,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9fd5d583c5d43c04980f67b96bf2f453, type: 3}
-  m_Name: HamburgerRecipe
+  m_Name: HamburgerRecipe2
   m_EditorClassIdentifier: 
-  steps: 0600000005000000030000000200000007000000
+  steps: 06000000050000000e000000020000000c0000001000000007000000

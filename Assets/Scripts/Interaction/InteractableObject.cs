@@ -62,6 +62,7 @@ public class InteractableObject : MonoBehaviour
     public void SetInteractionLocked(bool locked) => interactionLocked = locked;
         private Vector3 initialSpawnPosition;
         public Vector3 GetInitialSpawnPosition() => initialSpawnPosition;
+        public Vector3 GetLastValidPosition() => lastValidPosition;
 
     protected float GetPickupHeightTolerance() => pickupHeightTolerance;
 
@@ -309,7 +310,7 @@ public class InteractableObject : MonoBehaviour
         {
             Vector3 slotPos = closest.GetPosition();
             // Ensure the closest slot actually accepts this ingredient (processing or dish rules)
-            if (closest.isProcessingSlot && closest.acceptsIngredient != IngredientType.None && closest.acceptsIngredient != ingredientType)
+            if (!closest.CanAcceptIngredient(ingredientType))
             {
                 Debug.LogWarning($"Slot {closest.name} does not accept {ingredientType}; placement cancelled.");
                 transform.position = lastValidPosition;
@@ -363,6 +364,16 @@ public class InteractableObject : MonoBehaviour
 
         if (ingredientType != IngredientType.None)
         {
+            // If this object is sitting on a processing slot which produced this ingredient,
+            // allow pickup (e.g., cooked item on an oven/pan should be pickable).
+            if (occupiedSlot != null && occupiedSlot.isProcessingSlot)
+            {
+                if (occupiedSlot.ProducesIngredient(ingredientType))
+                {
+                    return true;
+                }
+            }
+
             Dish[] dishes = FindObjectsByType<Dish>(FindObjectsSortMode.None);
             if (dishes.Length == 0) return true;
 
@@ -396,8 +407,10 @@ public class InteractableObject : MonoBehaviour
             {
                 if (s == null) continue;
                 if (!s.isProcessingSlot) continue;
-                if (s.acceptsIngredient != ingredientType) continue;
-                if (s.producesIngredient == IngredientType.None) continue;
+                if (!s.CanProcessIngredient(ingredientType)) continue;
+
+                IngredientType producedIngredient = s.GetProducedIngredient(ingredientType);
+                if (producedIngredient == IngredientType.None) continue;
                 if (s.assignedPlayer != null && s.assignedPlayer != player) continue;
 
                 foreach (var d2 in dishes)
@@ -422,7 +435,7 @@ public class InteractableObject : MonoBehaviour
                     }
 
                     if (!dishForPlayer) continue;
-                    if (d2.CanAccept(s.producesIngredient)) return true;
+                    if (d2.CanAccept(producedIngredient)) return true;
                 }
             }
             return false;
@@ -472,27 +485,26 @@ public class InteractableObject : MonoBehaviour
             // - empty slots (not occupied) are acceptable
             // - or slots that are occupied by a Dish which can accept this ingredient now
             bool slotAccepts = false;
-                // If slot specifies an accepted ingredient, enforce it
-                if (slot.isProcessingSlot && slot.acceptsIngredient != IngredientType.None)
+            if (slot.isProcessingSlot)
+            {
+                // Do not allow placing onto a processing slot that is already occupied
+                if (slot.isOccupied)
                 {
-                    if (slot.acceptsIngredient != ingredientType)
-                    {
-                        // doesn't accept this ingredient type
-                        slotAccepts = false;
-                        goto CHECK_CONTINUE;
-                    }
+                    slotAccepts = false;
+                    goto CHECK_CONTINUE;
                 }
 
-                // If a dish is linked to this slot, require the dish to accept this ingredient
-                if (slot.linkedDish != null)
-                {
-                    slotAccepts = slot.linkedDish.CanAccept(ingredientType);
-                }
-                else if (!slot.isOccupied)
-                {
-                    // otherwise empty free slots are acceptable
-                    slotAccepts = true;
-                }
+                slotAccepts = slot.CanProcessIngredient(ingredientType);
+            }
+            else if (slot.linkedDish != null)
+            {
+                slotAccepts = slot.linkedDish.CanAccept(ingredientType);
+            }
+            else if (!slot.isOccupied)
+            {
+                // otherwise empty free slots are acceptable
+                slotAccepts = true;
+            }
 
             CHECK_CONTINUE:;
             if (!slotAccepts) continue;

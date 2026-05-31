@@ -48,9 +48,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5481885151737781159, guid: d930b6ca35e5c494ca9ed635d1593804, type: 3}
+      propertyPath: pickupHeightTolerance
+      value: 0.8
+      objectReference: {fileID: 0}
     - target: {fileID: 6524572224961453432, guid: d930b6ca35e5c494ca9ed635d1593804, type: 3}
       propertyPath: m_Name
-      value: 1.Ingredient_Base Variant
+      value: 1.Ingredient_Base
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

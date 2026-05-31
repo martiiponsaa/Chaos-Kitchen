@@ -3,7 +3,7 @@ public enum IngredientType
     None,
     Base,
     Tomato,
-    Cheese,
+    CheesePizza,
     Meat,
     CookedMeat,
     BreadBottom,
@@ -13,5 +13,10 @@ public enum IngredientType
     Hamburger, 
     Bacon, 
     Lettuce,
-    Onion
+    Onion, 
+    CheeseBurger, 
+    Egg,
+    CookedEgg, 
+    Pizza1, 
+    CookedPizza1
 }

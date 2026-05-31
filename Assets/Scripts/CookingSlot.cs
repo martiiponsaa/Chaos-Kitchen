@@ -22,6 +22,19 @@ public class CookingSlot : MonoBehaviour
     [Tooltip("Prefab spawned at the slot position when the ingredient burns.")]
     public GameObject burnedPrefab;
 
+    [System.Serializable]
+    private class IngredientVisualPair
+    {
+        public IngredientType ingredientType = IngredientType.None;
+        public GameObject cookedPrefab;
+        public GameObject burnedPrefab;
+        public AudioClip cookedClip;
+        public AudioClip burntClip;
+    }
+
+    [Tooltip("Optional ingredient-specific cooked and burned prefabs. Entries override the default prefabs for the matching raw ingredient type.")]
+    [SerializeField] private IngredientVisualPair[] ingredientVisualPairs = new IngredientVisualPair[0];
+
     [Tooltip("Offset applied to the burned visual relative to the slot position.")]
     [SerializeField] private Vector3 burnedVisualLocalOffset = Vector3.zero;
 
@@ -58,12 +71,16 @@ public class CookingSlot : MonoBehaviour
     /// Kick off the cooking sequence for <obj>.
     /// Called by PlacementSlot.OnObjectPlaced when this component is present.
     /// </summary>
-    public void StartCooking(InteractableObject obj)
+    public bool StartCooking(InteractableObject obj)
     {
-        if (obj == null) return;
+        if (obj == null) return false;
 
-        // Cancel any sequence that might still be running (safety)
-        StopActiveSequence();
+        // If already cooking, refuse to start a new one
+        if (objectBeingCooked != null)
+        {
+            Debug.LogWarning($"[CookingSlot] Cannot start cooking {obj.name} on {name}: slot already busy with {objectBeingCooked.name}.");
+            return false;
+        }
 
         objectBeingCooked = obj;
         originalIngredientType = obj.GetIngredientType();
@@ -75,6 +92,12 @@ public class CookingSlot : MonoBehaviour
         obj.SetInteractionLocked(true);
         PlayCookingLoop();
         activeSequence = StartCoroutine(CookingSequence(obj));
+        return true;
+    }
+
+    public bool IsBusy()
+    {
+        return objectBeingCooked != null;
     }
 
     /// <summary>
@@ -110,7 +133,7 @@ public class CookingSlot : MonoBehaviour
         }
 
         // Transform ingredient to the cooked type
-        IngredientType cookedType = slot.producesIngredient;
+        IngredientType cookedType = slot.GetProducedIngredient(obj.GetIngredientType());
         if (cookedType != IngredientType.None)
         {
             obj.SetIngredientType(cookedType);
@@ -120,7 +143,8 @@ public class CookingSlot : MonoBehaviour
         obj.SetInteractionLocked(false);
 
         Debug.Log($"[CookingSlot] {obj.name} is ready ({cookedType}). Pickup window: {pickupWindow}s.");
-        if (cookedClip != null) audioSource.PlayOneShot(cookedClip);
+        AudioClip cookedAudio = GetCookedClipForIngredient(originalIngredientType);
+        if (cookedAudio != null) audioSource.PlayOneShot(cookedAudio);
 
         // ── Phase 2: pickup window ────────────────────────────────────
         float elapsed = 0f;
@@ -219,7 +243,14 @@ public class CookingSlot : MonoBehaviour
     {
         DestroyBurnedVisual();
 
-        if (cookedPrefab == null || obj == null)
+        if (obj == null)
+        {
+            SetOriginalVisualVisible(true);
+            return;
+        }
+
+        GameObject prefabToSpawn = GetCookedPrefabForIngredient(originalIngredientType);
+        if (prefabToSpawn == null)
         {
             SetOriginalVisualVisible(true);
             return;
@@ -227,7 +258,7 @@ public class CookingSlot : MonoBehaviour
 
         DestroyCookedVisual();
         SetOriginalVisualVisible(false);
-        cookedVisualInstance = SpawnVisualInstance(cookedPrefab, obj.transform);
+        cookedVisualInstance = SpawnVisualInstance(prefabToSpawn, obj.transform);
     }
 
     private void RestoreRawVisual(InteractableObject obj)
@@ -246,14 +277,15 @@ public class CookingSlot : MonoBehaviour
         Debug.Log($"[CookingSlot] {obj.name} burned on {name}!");
 
         // Spawn burned visual at the slot position
-        if (burnedPrefab != null)
+        GameObject prefabToSpawn = GetBurnedPrefabForIngredient(originalIngredientType);
+        if (prefabToSpawn != null)
         {
-            GameObject burned = SpawnVisualInstance(burnedPrefab, obj.transform);
+            GameObject burned = SpawnVisualInstance(prefabToSpawn, obj.transform);
             Destroy(burned, burnedDisplayDuration);
         }
         else
         {
-            Debug.LogWarning($"[CookingSlot] No burnedPrefab assigned on {name}. Ingredient disappears silently.");
+            Debug.LogWarning($"[CookingSlot] No burned prefab assigned on {name} for {originalIngredientType}. Ingredient disappears silently.");
         }
 
         // Free the slot and destroy the original ingredient
@@ -276,7 +308,14 @@ public class CookingSlot : MonoBehaviour
 
     private void NotifyPizzaMaterialSwapStart(InteractableObject obj)
     {
-        if (obj == null || obj.GetIngredientType() != IngredientType.Pizza)
+        if (obj == null)
+        {
+            return;
+        }
+
+        // Support multiple pizza-like ingredient types (e.g., Pizza, Pizza1)
+        string name = obj.GetIngredientType().ToString();
+        if (!name.Contains("Pizza"))
         {
             return;
         }
@@ -305,14 +344,16 @@ public class CookingSlot : MonoBehaviour
         SetOriginalVisualVisible(false);
         StopCookingLoop();
 
-        if (burnedPrefab != null)
+        GameObject prefabToSpawn = GetBurnedPrefabForIngredient(originalIngredientType);
+        if (prefabToSpawn != null)
         {
-            burnedVisualInstance = SpawnVisualInstance(burnedPrefab, obj.transform);
+            burnedVisualInstance = SpawnVisualInstance(prefabToSpawn, obj.transform);
         }
 
-        if (burntClip != null)
+        AudioClip burntAudio = GetBurntClipForIngredient(originalIngredientType);
+        if (burntAudio != null)
         {
-            audioSource.PlayOneShot(burntClip);
+            audioSource.PlayOneShot(burntAudio);
         }
 
         yield return new WaitForSeconds(burnedDisplayDuration);
@@ -331,6 +372,69 @@ public class CookingSlot : MonoBehaviour
 
         activeSequence = null;
         Debug.Log($"[CookingSlot] Burn finished on {name}. {obj.name} has been restored to raw state.");
+    }
+
+    private GameObject GetCookedPrefabForIngredient(IngredientType ingredientType)
+    {
+        IngredientVisualPair pair = GetVisualPair(ingredientType);
+        if (pair != null && pair.cookedPrefab != null)
+        {
+            return pair.cookedPrefab;
+        }
+
+        return cookedPrefab;
+    }
+
+    private GameObject GetBurnedPrefabForIngredient(IngredientType ingredientType)
+    {
+        IngredientVisualPair pair = GetVisualPair(ingredientType);
+        if (pair != null && pair.burnedPrefab != null)
+        {
+            return pair.burnedPrefab;
+        }
+
+        return burnedPrefab;
+    }
+
+    private IngredientVisualPair GetVisualPair(IngredientType ingredientType)
+    {
+        if (ingredientVisualPairs == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < ingredientVisualPairs.Length; i++)
+        {
+            IngredientVisualPair pair = ingredientVisualPairs[i];
+            if (pair != null && pair.ingredientType == ingredientType)
+            {
+                return pair;
+            }
+        }
+
+        return null;
+    }
+
+    private AudioClip GetCookedClipForIngredient(IngredientType ingredientType)
+    {
+        IngredientVisualPair pair = GetVisualPair(ingredientType);
+        if (pair != null && pair.cookedClip != null)
+        {
+            return pair.cookedClip;
+        }
+
+        return cookedClip;
+    }
+
+    private AudioClip GetBurntClipForIngredient(IngredientType ingredientType)
+    {
+        IngredientVisualPair pair = GetVisualPair(ingredientType);
+        if (pair != null && pair.burntClip != null)
+        {
+            return pair.burntClip;
+        }
+
+        return burntClip;
     }
 
     private GameObject SpawnVisualInstance(GameObject prefab, Transform parent)

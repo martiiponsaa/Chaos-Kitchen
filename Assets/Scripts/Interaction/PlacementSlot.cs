@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Reflection;
 
 [DisallowMultipleComponent]
 public class PlacementSlot : MonoBehaviour
@@ -25,8 +26,12 @@ public class PlacementSlot : MonoBehaviour
     public bool isProcessingSlot = false;
     [Tooltip("Ingredient type this slot accepts for processing (Ignored if None)")]
     public IngredientType acceptsIngredient = IngredientType.None;
+    [Tooltip("Optional list of ingredient types this slot accepts for processing. Leave empty to use the single acceptedIngredient field.")]
+    public IngredientType[] acceptedIngredients = new IngredientType[0];
     [Tooltip("Resulting ingredient type after processing (set to same type for no change)")]
     public IngredientType producesIngredient = IngredientType.None;
+    [Tooltip("Optional list of resulting ingredient types after processing. If provided, each entry matches the ingredient type at the same index in acceptedIngredients.")]
+    public IngredientType[] producedIngredients = new IngredientType[0];
 
     // Static registry for fast lookups
     public static readonly List<PlacementSlot> all = new List<PlacementSlot>();
@@ -72,26 +77,35 @@ public class PlacementSlot : MonoBehaviour
     {
         if (obj == null) return;
 
-        if (isProcessingSlot && acceptsIngredient != IngredientType.None)
+        if (CanProcessIngredient(obj.GetIngredientType()))
         {
             var cur = obj.GetIngredientType();
-            if (cur == acceptsIngredient)
-            {
-                // Transform immediately (simple cooking placeholder)
-                //if (producesIngredient != IngredientType.None)
-                //{
-                //    obj.SetIngredientType(producesIngredient);
-                //    Debug.Log($"Processed {cur} -> {producesIngredient} on slot {name}");
-                //}
                 var cookingSlot = GetComponent<CookingSlot>();
                 if (cookingSlot != null)
                 {
-                    cookingSlot.StartCooking(obj);
+                    // If the cooking slot is already busy, revert placement and restore the object
+                    if (!cookingSlot.StartCooking(obj))
+                    {
+                        Debug.LogWarning($"[PlacementSlot] Cooking slot {name} busy; reverting placement of {obj.name}.");
+                        // Revert the newly placed object but keep the slot occupied by the cooking item.
+                        obj.transform.position = obj.GetLastValidPosition();
+                        obj.SetInteractionLocked(false);
+                        // Clear the object's occupiedSlot field so it no longer points to this slot
+                        var field = obj.GetType().GetField("occupiedSlot", BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (field != null)
+                        {
+                            field.SetValue(obj, null);
+                        }
+                        return;
+                    }
                 }
-                else if (producesIngredient != IngredientType.None)
+            else
+            {
+                IngredientType producedType = GetProducedIngredient(cur);
+                if (producedType != IngredientType.None && producedType != cur)
                 {
-                    obj.SetIngredientType(producesIngredient);
-                    Debug.Log($"Processed {cur} -> {producesIngredient} on slot {name}");
+                    obj.SetIngredientType(producedType);
+                    Debug.Log($"Processed {cur} -> {producedType} on slot {name}");
                 }
             }
         }
@@ -125,5 +139,112 @@ public class PlacementSlot : MonoBehaviour
         }
 
         return false;
+    }
+
+    public bool CanAcceptIngredient(IngredientType ingredientType)
+    {
+        if (ingredientType == IngredientType.None)
+        {
+            return false;
+        }
+
+        if (acceptOnlyDishes)
+        {
+            return false;
+        }
+
+        if (isProcessingSlot)
+        {
+            return !isOccupied && CanProcessIngredient(ingredientType);
+        }
+
+        if (linkedDish != null)
+        {
+            return linkedDish.CanAccept(ingredientType);
+        }
+
+        return !isOccupied;
+    }
+
+    public bool CanProcessIngredient(IngredientType ingredientType)
+    {
+        if (!isProcessingSlot || ingredientType == IngredientType.None)
+        {
+            return false;
+        }
+
+        if (acceptedIngredients != null && acceptedIngredients.Length > 0)
+        {
+            for (int i = 0; i < acceptedIngredients.Length; i++)
+            {
+                if (acceptedIngredients[i] == ingredientType)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return acceptsIngredient == IngredientType.None || acceptsIngredient == ingredientType;
+    }
+
+    public IngredientType GetProducedIngredient(IngredientType ingredientType)
+    {
+        if (!isProcessingSlot)
+        {
+            return IngredientType.None;
+        }
+
+        if (producedIngredients != null && producedIngredients.Length > 0)
+        {
+            int matchedIndex = -1;
+
+            if (acceptedIngredients != null && acceptedIngredients.Length > 0)
+            {
+                for (int i = 0; i < acceptedIngredients.Length; i++)
+                {
+                    if (acceptedIngredients[i] == ingredientType)
+                    {
+                        matchedIndex = i;
+                        break;
+                    }
+                }
+            }
+            else if (acceptsIngredient == ingredientType)
+            {
+                matchedIndex = 0;
+            }
+
+            if (matchedIndex >= 0 && matchedIndex < producedIngredients.Length)
+            {
+                IngredientType producedType = producedIngredients[matchedIndex];
+                if (producedType != IngredientType.None)
+                {
+                    return producedType;
+                }
+            }
+        }
+
+        return producesIngredient;
+    }
+
+    /// <summary>
+    /// Returns true if this slot can produce the given ingredient type (either via the single producesIngredient
+    /// field or via the producedIngredients array).
+    /// </summary>
+    public bool ProducesIngredient(IngredientType producedType)
+    {
+        if (producedType == IngredientType.None) return false;
+
+        if (producedIngredients != null && producedIngredients.Length > 0)
+        {
+            foreach (var p in producedIngredients)
+            {
+                if (p == producedType) return true;
+            }
+        }
+
+        return producesIngredient == producedType;
     }
 }

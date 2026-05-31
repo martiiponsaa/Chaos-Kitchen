@@ -54,11 +54,12 @@ MonoBehaviour:
     m_Bits: 0
   slotSnapDistance: 5
   pickupYThreshold: 0.2
-  pickupHeightTolerance: 0.15
+  pickupHeightTolerance: 0.8
   ingredientType: 11
   ownerPlayer: {fileID: 0}
   passableIngredient: 0
   interactionLocked: 0
+  passablePickupDelay: 0.5
   passTransferDistance: 0.75
   passTransferHeightTolerance: 0.12
 --- !u!1 &7953665549663490880
